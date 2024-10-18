@@ -5,7 +5,7 @@ url = 'https://moushikomi-uketsukekun.com/maintenance_company/api/content_images
 
 # ヘッダ情報を定義（Authorizationヘッダを含む）
 headers = {
-    'Authorization': 'Token 5a5030e472a8f92a87e4e093f4161944'
+    'Authorization': 'Token 5a5030e472a8f92a87e4e093f4161944',
 }
 
 # GETリクエストを送信（ヘッダを含む）
