@@ -5,7 +5,7 @@ from flask import Flask
 app = Flask(__name__)
  
 # DynDNS の URL
-url = 'https://api.kenall.jp/v1/whoami'
+url = 'https://staging.moushikomi-uketsukekun.com/maintenance_company/api/v2/entry_heads'
  
  
 @app.route('/')
