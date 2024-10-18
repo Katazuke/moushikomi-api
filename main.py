@@ -1,7 +1,7 @@
 import requests
 
 # 送信先のURL
-url = 'https://example.com'
+url = 'https://moushikomi-uketsukekun.com/maintenance_company/api/v2/entry_heads/3637058'
 
 # GETリクエストを送信
 response = requests.get(url)
