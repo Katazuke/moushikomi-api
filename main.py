@@ -2,7 +2,6 @@ import requests
 
 # 送信先のURL
 url = 'https://moushikomi-uketsukekun.com/maintenance_company/api/v2/entry_heads/3637058'
-import requests
 
 # ヘッダ情報を定義（Authorizationヘッダを含む）
 headers = {
