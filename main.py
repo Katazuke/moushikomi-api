@@ -8,9 +8,10 @@ def main():
 	# 送信先のURL
 	url = 'https://moushikomi-uketsukekun.com/maintenance_company/api/content_images/19086285'
 
- 	ヘッダ情報を定義（Authorizationヘッダを含む）
+	#ヘッダ情報を定義（Authorizationヘッダを含む）
 	headers = {
     	'Authorization': 'Token 5a5030e472a8f92a87e4e093f4161944',
+	
 	}
 	
 	# GETリクエストを送信（ヘッダを含む）
