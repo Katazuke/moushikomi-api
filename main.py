@@ -17,10 +17,10 @@ def main():
 	res = requests.get(url, headers=headers)
 
 	# ステータスコードの表示
-	print('ステータスコード:', response.status_code)
+	print('ステータスコード:', res.status_code)
 
 	# レスポンス内容の表示（テキスト形式）
-	print('レスポンス本文:', response.text)
+	print('レスポンス本文:', res.text)
 
 	return
 
