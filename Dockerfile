@@ -1,17 +1,11 @@
-# 使用するベースイメージ
 FROM python:3.10-slim
 
-# 作業ディレクトリを設定
-WORKDIR /app
+ENV PYTHONUNBUFFERED True
 
-# requirements.txtをコンテナにコピー
-COPY requirements.txt .
+ENV APP_HOME /app
+WORKDIR $APP_HOME
+COPY . ./
 
-# 必要なパッケージをインストール
 RUN pip install --no-cache-dir -r requirements.txt
 
-# アプリケーションのコードをコンテナにコピー
-COPY . .
-
-# コードを実行
-CMD ["python", "main.py"]
+CMD exec gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 main:app
