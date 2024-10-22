@@ -6,7 +6,7 @@ app = Flask(__name__)
 @app.route('/')
 def main():
 	# 送信先のURL
-	url = https://moushikomi-uketsukekun.com/maintenance_company/api/v2/entry_heads/3637058
+	url = 'https://moushikomi-uketsukekun.com/maintenance_company/api/v2/entry_heads/3637058'
 	iapikey = 'Token 5a5030e472a8f92a87e4e093f4161944'
 	
 	#ヘッダ情報を定義（Authorizationヘッダを含む）
@@ -18,9 +18,14 @@ def main():
 
 	# ステータスコードの表示
 	print('ステータスコード:', res.status_code)
+	
+	# エラーハンドリング
+	if res.status_code != 200:
+		return f"Error: {res.status_code} - {res.text}",
+		res.status_code
 
-	# レスポンス内容の表示（テキスト形式）
-	print('レスポンス本文:', res.text)
+	# レスポンス内容の表示（JSON形式）
+	print('レスポ本文:', res.json())  # JSON形式での表示
 
 	return res.text  #レスポンスを返す
 
