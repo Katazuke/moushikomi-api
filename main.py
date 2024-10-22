@@ -7,14 +7,14 @@ app = Flask(__name__)
 def main():
 	# 送信先のURL
 	url = 'http://checkip.dyndns.com/'
-	#iapikey = 'Token 5a5030e472a8f92a87e4e093f4161944'
+	iapikey = 'Token 5a5030e472a8f92a87e4e093f4161944'
 	
 	#ヘッダ情報を定義（Authorizationヘッダを含む）
-	#headers = {'Authorization': iapikey}
+	headers = {'Authorization': iapikey}
 
 	# GETリクエストを送信（ヘッダを含む）
-	#res = requests.get(url, headers=headers)
-	res = requests.get(url)
+	res = requests.get(url, headers=headers)
+	#res = requests.get(url)
 
 	# ステータスコードの表示
 	print('ステータスコード:', res.status_code)
