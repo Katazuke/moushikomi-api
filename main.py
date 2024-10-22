@@ -5,9 +5,20 @@ app = Flask(__name__)
 
 @app.route('/')
 def main():
+	# クエリパラメータからapplication_idを取得
+	application_id = request.args.get('application_id')
+
+	# application_idが指定されていない場合はエラーを返す
+	if not application_id:
+		return "Error: 'application_id' parameter is required.", 400
+
+	# 送信先のURLを構築
+	url = 'https://moushikomi-uketsukekun.com/maintenance_company/api/v2/entry_heads/{application_id}'
+
+
 	# 送信先のURL
 	#url = 'http://checkip.dyndns.com/'
-	url = 'https://moushikomi-uketsukekun.com/maintenance_company/api/v2/entry_heads/3637058'
+	#url = 'https://moushikomi-uketsukekun.com/maintenance_company/api/v2/entry_heads/3637058'
 	iapikey = 'Token 5a5030e472a8f92a87e4e093f4161944'
 	
 	#ヘッダ情報を定義（Authorizationヘッダを含む）
