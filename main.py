@@ -10,7 +10,7 @@ def main():
 	#iapikey = 'Token 5a5030e472a8f92a87e4e093f4161944'
 	
 	#ヘッダ情報を定義（Authorizationヘッダを含む）
-	headers = {'Authorization': iapikey}
+	#headers = {'Authorization': iapikey}
 
 	# GETリクエストを送信（ヘッダを含む）
 	#res = requests.get(url, headers=headers)
