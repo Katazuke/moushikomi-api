@@ -6,8 +6,8 @@ app = Flask(__name__)
 @app.route('/')
 def main():
 	# 送信先のURL
-	url = 'https://moushikomi-uketsukekun.com/maintenance_company/api/content_images/19086285'
-	iapikey = 'Bearer 5a5030e472a8f92a87e4e093f4161944'
+	url = 'https://moushikomi-uketsukekun.com/maintenance_company/api/v2/entry_heads/3637058'
+	iapikey = 'Token 5a5030e472a8f92a87e4e093f4161944'
 	
 	#ヘッダ情報を定義（Authorizationヘッダを含む）
 	headers = {'Authorization': iapikey}
