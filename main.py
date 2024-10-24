@@ -32,8 +32,8 @@ def main():
 	print('ステータスコード:', res.status_code)
 	
 	# エラーハンドリング
-	if res.status_code != 200:
-		return f"Error: {res.status_code} - {res.text}", res.status_code
+	#if res.status_code != 200:
+	#	return f"Error: {res.status_code} - {res.text}", res.status_code
 	# レスポンス内容の表示（JSON形式）
 	for key in appjson:
 		print('レスポンスkey:',key)  # JSON形式での表示
