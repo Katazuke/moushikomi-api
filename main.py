@@ -15,11 +15,8 @@ def main():
 
 	# 送信先のURLを構築
 	url = f'https://moushikomi-uketsukekun.com/maintenance_company/api/v2/entry_heads/{application_id}'
-
-
-	# 送信先のURL
-	#ipurl = 'http://checkip.dyndns.com/'
-	#url = 'https://moushikomi-uketsukekun.com/maintenance_company/api/v2/entry_heads/3637058'
+	# IPアドレステスト用URL
+	ipurl = 'http://checkip.dyndns.com/'
 	iapikey = 'Token 5a5030e472IDa8f92a87e4e093f4161944'
 	
 	#ヘッダ情報を定義（Authorizationヘッダを含む）
@@ -27,7 +24,7 @@ def main():
 
 	# GETリクエストを送信（ヘッダを含む）
 	res = requests.get(url, headers=headers)
-	ipres = requests.get(url)
+	ipres = requests.get(ipurl)
 
 	appjson = json.loads(res.text)
 
