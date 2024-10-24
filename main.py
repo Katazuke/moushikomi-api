@@ -42,7 +42,7 @@ def main():
 		print('レスポンスkey:',key)  # JSON形式での表示
 	for val in appjson.values():
 		print('レスポンスval:',val)
-	print('IPアドレス：'ipres.text)
+	print('IPアドレス：',ipres.text)
 
 	return  res.text#レスポンスを返す
 
