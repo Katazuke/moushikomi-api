@@ -7,6 +7,7 @@ app = Flask(__name__)
 def main():
 	# クエリパラメータからapplication_idを取得
 	application_id = request.args.get('application_id')
+	recordId = request.args.get('record_id')
 
 	# application_idが指定されていない場合はエラーを返す
 	if not application_id:
@@ -19,7 +20,7 @@ def main():
 	# 送信先のURL
 	#url = 'http://checkip.dyndns.com/'
 	#url = 'https://moushikomi-uketsukekun.com/maintenance_company/api/v2/entry_heads/3637058'
-	iapikey = 'Token 5a5030e472a8f92a87e4e093f4161944'
+	iapikey = 'Token 5a5030e472IDa8f92a87e4e093f4161944'
 	
 	#ヘッダ情報を定義（Authorizationヘッダを含む）
 	headers = {'Authorization': iapikey}
@@ -37,9 +38,12 @@ def main():
 	if res.status_code != 200:
 		return f"Error: {res.status_code} - {res.text}", res.status_code
 	# レスポンス内容の表示（JSON形式）
-	print('レスポ本文:', appjson)  # JSON形式での表示
+	for key in appjson:
+		print('レスポンスkey:',key)  # JSON形式での表示
+	for val in appjson.values():
+		print('レスポンスval:',val)
 
-	return res.text  #レスポンスを返す
+	return appjson #レスポンスを返す
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8080)
