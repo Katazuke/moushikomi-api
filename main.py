@@ -1,5 +1,5 @@
 import requests
-from flask import Flask,request
+from flask import Flask,request,json
 
 app = Flask(__name__)
 
@@ -28,6 +28,8 @@ def main():
 	res = requests.get(url, headers=headers)
 	#res = requests.get(url)
 
+	appjson = json.loads(res.text)
+
 	# ステータスコードの表示
 	print('ステータスコード:', res.status_code)
 	
@@ -35,7 +37,7 @@ def main():
 	if res.status_code != 200:
 		return f"Error: {res.status_code} - {res.text}", res.status_code
 	# レスポンス内容の表示（JSON形式）
-	print('レスポ本文:', res.json())  # JSON形式での表示
+	print('レスポ本文:', appjson)  # JSON形式での表示
 
 	return res.text  #レスポンスを返す
 
