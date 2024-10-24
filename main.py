@@ -7,7 +7,6 @@ app = Flask(__name__)
 def main():
 	# クエリパラメータからapplication_idを取得
 	application_id = request.args.get('application_id')
-	recordId = request.args.get('record_id')
 
 	# application_idが指定されていない場合はエラーを返す
 	if not application_id:
@@ -17,9 +16,10 @@ def main():
 	url = f'https://moushikomi-uketsukekun.com/maintenance_company/api/v2/entry_heads/{application_id}'
 	# IPアドレステスト用URL
 	ipurl = 'http://checkip.dyndns.com/'
-	iapikey = 'Token 5a5030e472IDa8f92a87e4e093f4161944'
+	
 	
 	#ヘッダ情報を定義（Authorizationヘッダを含む）
+	iapikey = 'Token 5a5030e472IDa8f92a87e4e093f4161944'
 	headers = {'Authorization': iapikey}
 
 	# GETリクエストを送信（ヘッダを含む）
