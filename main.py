@@ -49,7 +49,7 @@ def main():
 	#	return f"Error: {res.status_code} - {res.text}", res.status_code
 	# レスポンス内容の表示（JSON形式）
 	#print('IPアドレス：',ipres.text)
-	print('転居理由順番；'indices)
+	print('転居理由順番：',indices)
 
 	return  MovingReason__c#レスポンスを返す
 
