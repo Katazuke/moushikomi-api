@@ -34,7 +34,7 @@ def main():
 
 
 	for i, entry_body in enumerate(appjson.get('entry_bodies')):
-		if appjson['entry_bodies']['name']==target_column:
+		if appjson['entry_bodies'][]['name']==target_column:
 			if entry_body is not None and entry_body.get('name') == target_column:
 				indices.append(i)
 				MovingReason__c = appjson['entry_bodies'][indices.append(i)].get('value')
