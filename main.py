@@ -1,5 +1,5 @@
 import requests
-from flask import Flask,request,json
+from flask import Flask,request,jsonify
 
 app = Flask(__name__)
 
@@ -21,33 +21,32 @@ def main():
 	headers = {'Authorization': iapikey}
 
 	# GETリクエストを送信（ヘッダを含む）
-	res = requests.get(url, headers=headers)
-	appjson = json.loads(res.text)
-
-	target_column = "applicant_moving_reason"
-	indices = []
-
-	for i, entry_body in enumerate(appjson.get('entry_bodies')):
-		if entry_body['name']==target_column:
-			if entry_body is not None and entry_body.get('name') == target_column:
-				indices.append(i)
-				MovingReason__c = entry_body.get('value')
-
-	# ステータスコードの表示
-	print('ステータスコード:', res.status_code)
+	try:
+		res = requests.get(url, headers=headers)
+		res.raise_for_status() # レスポンスが失敗した場合は例外を発生させる
 	
-	# エラーハンドリング
-	#if res.status_code != 200:
-	#	return f"Error: {res.status_code} - {res.text}", res.status_code
-	print('転居理由：',MovingReason__c)
+		appjson = res.json()
+		
+		target_column = "applicant_moving_reason"
+	
+		MovinReason__c = None
+		for entry_body in appjson.get('entry_bodies',[]):
+			if entry_body.get('name')==target_column:
+				MovingReason__c = entry_body.get('value')
+				break	# 一致するものが見つかったらループを抜ける
+
+
+		if MovingReason__c is None:
+			return jsonify({"error": "No matching entry found."}), 404
+		return jsonify({{"MovingReason__c": MovingReason__c}), 200
+	
+	except requests.exceptions.RequestException as e:
+		return jsonify({"error": str(e)}), 500  # リクエストのエラーをキャッチ
 
 	# IPアドレステスト用URL
 	#ipurl = 'http://checkip.dyndns.com/'
 	#ipres = requests.get(ipurl)
 	#print('IPアドレス：',ipres.text)
-
-	 # 結果をJSON形式で返す
-	return print({"引っ越し理由":MovingReason__c})
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8080)
