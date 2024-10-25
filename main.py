@@ -29,7 +29,15 @@ def main():
 
 	appjson = json.loads(res.text)
 
-	MovingReason__c = appjson["entry_bodies"]
+	target_column = "applicant_moving_reason"
+	indices = []
+
+
+	for i, entry_bodies in enumerate(appjson[entry_bodies]):
+		if entry_bodies['name']==target_column:
+			indeces.append(i)
+
+	#MovingReason__c = appjson["entry_bodies"][""]
 
 
 
@@ -41,7 +49,7 @@ def main():
 	#	return f"Error: {res.status_code} - {res.text}", res.status_code
 	# レスポンス内容の表示（JSON形式）
 	#print('IPアドレス：',ipres.text)
-	print('転居理由；',MovingReason__c)
+	print('転居理由順番；'indices)
 
 	return  MovingReason__c#レスポンスを返す
 
