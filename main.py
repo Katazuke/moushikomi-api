@@ -32,7 +32,7 @@ def main():
 		MovinReason__c = None
 		for entry_body in appjson.get('entry_bodies',[]):
 			if entry_body.get('name')==target_column:
-				MovingReason__c = entry_body.get('choice')
+				MovingReason__c = data[entry_body.get('choice')]
 				break	# 一致するものが見つかったらループを抜ける
 
 
