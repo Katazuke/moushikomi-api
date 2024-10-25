@@ -33,10 +33,11 @@ def main():
 	indices = []
 
 
-	for i, entry_bodies in enumerate(appjson['entry_bodies']):
+	for i, entry_body in enumerate(appjson['entry_bodies']):
 		if entry_bodies['name']==target_column:
-			indices.append(i)
-			MovingReason__c = appjson['entry_bodies'][indices.append(i)][choice]
+			if entry_body is not None and entry_body.get('name') == target_column:
+				indices.append(i)
+				MovingReason__c = appjson['entry_bodies'][indices.append(i)][choice]
 
 
 
