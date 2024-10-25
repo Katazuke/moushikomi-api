@@ -33,11 +33,11 @@ def main():
 	indices = []
 
 
-	for i, entry_bodies in enumerate(appjson[entry_bodies]):
+	for i, entry_bodies in enumerate(appjson['entry_bodies']):
 		if entry_bodies['name']==target_column:
-			indeces.append(i)
+			indices.append(i)
 
-	#MovingReason__c = appjson["entry_bodies"][""]
+	#MovingReason__c = appjson['entry_bodies'][""]
 
 
 
@@ -51,7 +51,8 @@ def main():
 	#print('IPアドレス：',ipres.text)
 	print('転居理由順番：',indices)
 
-	return  MovingReason__c#レスポンスを返す
+	 # 結果をJSON形式で返す
+	return jsonify({'転居理由順番：' indices}), 200
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8080)
