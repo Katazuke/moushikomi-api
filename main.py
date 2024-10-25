@@ -33,11 +33,11 @@ def main():
 	indices = []
 
 
-	for i, entry_body in enumerate(appjson['entry_bodies']):
-		if entry_bodies['name']==target_column:
+	for i, entry_body in enumerate(appjson.get('entry_bodies')):
+		if appjson['entry_bodies']['name']==target_column:
 			if entry_body is not None and entry_body.get('name') == target_column:
 				indices.append(i)
-				MovingReason__c = appjson['entry_bodies'][indices.append(i)][choice]
+				MovingReason__c = appjson['entry_bodies'][indices.append(i)].get('value')
 
 
 
@@ -47,12 +47,11 @@ def main():
 	# エラーハンドリング
 	#if res.status_code != 200:
 	#	return f"Error: {res.status_code} - {res.text}", res.status_code
-	# レスポンス内容の表示（JSON形式）
 	#print('IPアドレス：',ipres.text)
 	print('転居理由：',MovingReason__c)
 
 	 # 結果をJSON形式で返す
-	return MovingReason__c
+	return print({"引っ越し理由":MovingReason__c})
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8080)
