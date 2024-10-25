@@ -16,16 +16,16 @@ def main():
 	#url = f'https://moushikomi-uketsukekun.com/maintenance_company/api/v2/entry_heads/{application_id}'
 	url = f'https://moushikomi-uketsukekun.com/maintenance_company/api/v2/entry_heads/3663121'
 	# IPアドレステスト用URL
-	#ipurl = 'http://checkip.dyndns.com/'
+	ipurl = 'http://checkip.dyndns.com/'
 	
 	
 	#ヘッダ情報を定義（Authorizationヘッダを含む）
-	iapikey = 'Token 5a5030e472IDa8f92a87e4e093f4161944'
+	iapikey = 'Token 5a5030e472a8f92a87e4e093f4161944'
 	headers = {'Authorization': iapikey}
 
 	# GETリクエストを送信（ヘッダを含む）
 	res = requests.get(url, headers=headers)
-	#ipres = requests.get(ipurl)
+	ipres = requests.get(ipurl)
 
 	appjson = json.loads(res.text)
 
@@ -40,7 +40,7 @@ def main():
 		print('レスポンスkey:',key)  # JSON形式での表示
 	for val in appjson.values():
 		print('レスポンスval:',val)
-	#print('IPアドレス：',ipres.text)
+	print('IPアドレス：',ipres.text)
 
 	return  res.text#レスポンスを返す
 
