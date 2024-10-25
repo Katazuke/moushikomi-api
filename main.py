@@ -16,7 +16,7 @@ def main():
 	url = f'https://moushikomi-uketsukekun.com/maintenance_company/api/v2/entry_heads/{application_id}'
 	#url = f'https://moushikomi-uketsukekun.com/maintenance_company/api/v2/entry_heads/3663121'
 	# IPアドレステスト用URL
-	ipurl = 'http://checkip.dyndns.com/'
+	#ipurl = 'http://checkip.dyndns.com/'
 	
 	
 	#ヘッダ情報を定義（Authorizationヘッダを含む）
@@ -25,9 +25,13 @@ def main():
 
 	# GETリクエストを送信（ヘッダを含む）
 	res = requests.get(url, headers=headers)
-	ipres = requests.get(ipurl)
+	#ipres = requests.get(ipurl)
 
 	appjson = json.loads(res.text)
+
+	MovingReason__c = appjson["entry_bodies"][0]["applicant_moving_reason"]
+
+
 
 	# ステータスコードの表示
 	print('ステータスコード:', res.status_code)
@@ -36,13 +40,10 @@ def main():
 	#if res.status_code != 200:
 	#	return f"Error: {res.status_code} - {res.text}", res.status_code
 	# レスポンス内容の表示（JSON形式）
-	for key in appjson:
-		print('レスポンスkey:',key)  # JSON形式での表示
-	for val in appjson.values():
-		print('レスポンスval:',val)
-	print('IPアドレス：',ipres.text)
+	#print('IPアドレス：',ipres.text)
+	print('転居理由；',MovingReason__c)
 
-	return  res.text#レスポンスを返す
+	return  MovingReason__c#レスポンスを返す
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8080)
