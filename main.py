@@ -36,8 +36,7 @@ def main():
 	for i, entry_bodies in enumerate(appjson['entry_bodies']):
 		if entry_bodies['name']==target_column:
 			indices.append(i)
-
-	#MovingReason__c = appjson['entry_bodies'][""]
+			MovingReason__c = appjson['entry_bodies'][indices.append(i)][choice]
 
 
 
@@ -49,7 +48,7 @@ def main():
 	#	return f"Error: {res.status_code} - {res.text}", res.status_code
 	# レスポンス内容の表示（JSON形式）
 	#print('IPアドレス：',ipres.text)
-	print('転居理由順番：',indices)
+	print('転居理由：',MovingReason__c)
 
 	 # 結果をJSON形式で返す
 	return print('転居理由順番：',indices)
