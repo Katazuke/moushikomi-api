@@ -6,15 +6,15 @@ app = Flask(__name__)
 @app.route('/')
 def main():
 	# クエリパラメータからapplication_idを取得
-	#application_id = request.args.get('application_id')
+	application_id = request.args.get('application_id')
 
 	# application_idが指定されていない場合はエラーを返す
-	#if not application_id:
-	#	return f"Error: 'application_id' parameter is required.", 400
+	if not application_id:
+		return f"Error: 'application_id' parameter is required.", 400
 
 	# 送信先のURLを構築
-	#url = f'https://moushikomi-uketsukekun.com/maintenance_company/api/v2/entry_heads/{application_id}'
-	url = f'https://moushikomi-uketsukekun.com/maintenance_company/api/v2/entry_heads/3663121'
+	url = f'https://moushikomi-uketsukekun.com/maintenance_company/api/v2/entry_heads/{application_id}'
+	#url = f'https://moushikomi-uketsukekun.com/maintenance_company/api/v2/entry_heads/3663121'
 	# IPアドレステスト用URL
 	ipurl = 'http://checkip.dyndns.com/'
 	
