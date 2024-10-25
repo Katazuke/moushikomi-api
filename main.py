@@ -14,7 +14,7 @@ def main():
 
 	# 送信先のURLを構築
 	url = f'https://moushikomi-uketsukekun.com/maintenance_company/api/v2/entry_heads/{application_id}'
-	url = f'https://moushikomi-uketsukekun.com/maintenance_company/api/v2/entry_heads/3663121
+	url = f'https://moushikomi-uketsukekun.com/maintenance_company/api/v2/entry_heads/3663121'
 	# IPアドレステスト用URL
 	#ipurl = 'http://checkip.dyndns.com/'
 	
