@@ -14,10 +14,7 @@ def main():
 
 	# 送信先のURLを構築
 	url = f'https://moushikomi-uketsukekun.com/maintenance_company/api/v2/entry_heads/{application_id}'
-	#url = f'https://moushikomi-uketsukekun.com/maintenance_company/api/v2/entry_heads/3663121'
-	# IPアドレステスト用URL
-	#ipurl = 'http://checkip.dyndns.com/'
-	
+	#url = f'https://moushikomi-uketsukekun.com/maintenance_company/api/v2/entry_heads/3663121'	
 	
 	#ヘッダ情報を定義（Authorizationヘッダを含む）
 	iapikey = 'Token 5a5030e472a8f92a87e4e093f4161944'
@@ -25,21 +22,16 @@ def main():
 
 	# GETリクエストを送信（ヘッダを含む）
 	res = requests.get(url, headers=headers)
-	#ipres = requests.get(ipurl)
-
 	appjson = json.loads(res.text)
 
 	target_column = "applicant_moving_reason"
 	indices = []
 
-
 	for i, entry_body in enumerate(appjson.get('entry_bodies')):
-		if appjson['entry_bodies'][]['name']==target_column:
+		if entry_body['name']==target_column:
 			if entry_body is not None and entry_body.get('name') == target_column:
 				indices.append(i)
-				MovingReason__c = appjson['entry_bodies'][indices.append(i)].get('value')
-
-
+				MovingReason__c = entry_body.get('value')
 
 	# ステータスコードの表示
 	print('ステータスコード:', res.status_code)
@@ -47,8 +39,12 @@ def main():
 	# エラーハンドリング
 	#if res.status_code != 200:
 	#	return f"Error: {res.status_code} - {res.text}", res.status_code
-	#print('IPアドレス：',ipres.text)
 	print('転居理由：',MovingReason__c)
+
+	# IPアドレステスト用URL
+	#ipurl = 'http://checkip.dyndns.com/'
+	#ipres = requests.get(ipurl)
+	#print('IPアドレス：',ipres.text)
 
 	 # 結果をJSON形式で返す
 	return print({"引っ越し理由":MovingReason__c})
