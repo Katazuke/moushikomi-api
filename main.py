@@ -29,7 +29,7 @@ def main():
 
 	appjson = json.loads(res.text)
 
-	MovingReason__c = appjson["entry_bodies"][0]["applicant_moving_reason"]
+	MovingReason__c = appjson["entry_bodies"]
 
 
 
