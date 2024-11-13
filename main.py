@@ -38,12 +38,12 @@ def main():
 	
 		for entry_body in appjson.get('entry_bodies',[]):
 			if entry_body.get('name')==target_columns[1][1]:
-				target_columns[1][0] = entry_body.get(target_columns[1][2]).encode().decode("unicode_escape")
+				target_columns[1][0] = entry_body.get(target_columns[1][2],' ')
 				break	# 一致するものが見つかったらループを抜ける
 		
 
 		if target_columns[1][0] is None:
-			return jsonify({"error": "No matching entry found."}), 404
+			return make_response(json.dumps({"error": "No matching entry found."}, ensure_ascii=False)), 404
 		# カスタムレスポンスでエスケープを防ぐ
 		print(target_columns[1][0])
 		response_data = {"target_columns[1][0]": target_columns[1][0]}
@@ -52,7 +52,7 @@ def main():
 		return response, 200
 	
 	except requests.exceptions.RequestException as e:
-		return jsonify({"error": str(e)}), 500  # リクエストのエラーをキャッチ
+		return make_response(json.dumps({"error": str(e)}, ensure_ascii=False)), 500  # リクエストのエラーをキャッチ
 
 	# IPアドレステスト用URL
 	#ipurl = 'http://checkip.dyndns.com/'
