@@ -42,7 +42,7 @@ def main():
 				if entry_body.get('name') == target_columns[i][1]:
 					# 一致する場合、対応する値を取得して target_columns[i][0] に格納
 					target_columns[i][0] = entry_body.get(target_columns[i][2], '')
-					print("target_columns[i][0]:"target_columns[i][0])
+					print(target_columns[i][0])
 					break  # 一致するものが見つかったら内側のループを抜ける
 		
 
