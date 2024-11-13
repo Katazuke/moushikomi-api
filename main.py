@@ -49,13 +49,14 @@ def main():
 			for entry_body in appjson.get('entry_bodies', []):
 				if entry_body.get('name') == entry_name:
 					# 辞書内の該当キーに値を格納
-					variables[key] = entry_body.get(field_name, '')					print(target_columns[i][0])
+					variables[key] = entry_body.get(field_name, '')
 					break  # 一致するものが見つかったら内側のループを抜ける	
-		if variables is None:
+		if all(value is None for value in variables.values()):
 			return make_response(json.dumps({"error": "No matching entry found."}, ensure_ascii=False)), 404
 		# カスタムレスポンスでエスケープを防ぐ
+		
 		print(variables)
-		response_data = {"variable": variable}
+		response_data = {"variables": variables}
 		response = make_response(json.dumps(response_data, ensure_ascii=False))
 		response.headers['Content-Type'] = 'application/json; charset=utf-8'
 		return response, 200
