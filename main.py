@@ -28,6 +28,12 @@ def main():
 		appjson = res.json()
 		print(appjson)
 		
+		variables = {
+			"LastName__c": None,
+			"FirstName__c": None,
+			"Sex__c": None,
+			"Birthday__c": None,
+			}
 		#target_column = "applicant_moving_reason"
 		target_columns = [
 					['LastName__c','applicant_name_kana','last_name'],
@@ -36,21 +42,20 @@ def main():
 					['Birthday__c','applicant_birthday','"birthday']
 				]
 	
-		for i in range(len(target_columns)):  # i を 0 から 3 まで繰り返す
-			for entry_body in appjson.get('entry_bodies', []):
-				# target_columns[i][1] が entry_body['name'] に一致するかチェック
-				if entry_body.get('name') == target_columns[i][1]:
-					# 一致する場合、対応する値を取得して target_columns[i][0] に格納
-					target_columns[i][0] = entry_body.get(target_columns[i][2], '')
-					print(target_columns[i][0])
-					break  # 一致するものが見つかったら内側のループを抜ける
-		
+		# 各エントリを処理して値を辞書に格納
+		for column in target_columns:
+			key, entry_name, field_name = column  # 要素を展開
 
-		if target_columns[1][0] is None:
+			for entry_body in appjson.get('entry_bodies', []):
+				if entry_body.get('name') == entry_name:
+					# 辞書内の該当キーに値を格納
+					variables[key] = entry_body.get(field_name, '')					print(target_columns[i][0])
+					break  # 一致するものが見つかったら内側のループを抜ける	
+		if variables is None:
 			return make_response(json.dumps({"error": "No matching entry found."}, ensure_ascii=False)), 404
 		# カスタムレスポンスでエスケープを防ぐ
-		print(target_columns[1][0])
-		response_data = {"target_columns[1][0]": target_columns[1][0]}
+		print(variables)
+		response_data = {"variable": variable}
 		response = make_response(json.dumps(response_data, ensure_ascii=False))
 		response.headers['Content-Type'] = 'application/json; charset=utf-8'
 		return response, 200
