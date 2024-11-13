@@ -33,9 +33,8 @@ def main():
 					['FirstName__c','applicant_name_kana','first_name'],
 					['Sex__c','applicant_sex','"choice"'],
 					['Birthday__c','applicant_birthday','"birthday']
-				]]
+				]
 	
-		MovinReason__c = None
 		for entry_body in appjson.get('entry_bodies',[]):
 			if entry_body.get('name')==target_columns[1][1]:
 				target_columns[1][0] = entry_body.get(target_columns[1][2]).encode().decode("unicode_escape")
