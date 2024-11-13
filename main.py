@@ -27,12 +27,18 @@ def main():
 	
 		appjson = res.json()
 		
-		target_column = "applicant_moving_reason"
+		#target_column = "applicant_moving_reason"
+		target_columns = [
+					['LastName__c','applicant_name_kana','last_name'],
+					['FirstName__c','applicant_name_kana','first_name'],
+					['Sex__c','applicant_sex','"choice"'],
+					['Birthday__c','applicant_birthday','"birthday']
+				]]
 	
 		MovinReason__c = None
 		for entry_body in appjson.get('entry_bodies',[]):
-			if entry_body.get('name')==target_column:
-				MovingReason__c = entry_body.get('choice').encode().decode("unicode_escape")
+			if entry_body.get('name')==target_columns[1][1]:
+				target_columns[1][0] = entry_body.get(target_columns[1][2]).encode().decode("unicode_escape")
 				break	# 一致するものが見つかったらループを抜ける
 
 
