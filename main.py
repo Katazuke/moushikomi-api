@@ -43,7 +43,11 @@ def main():
 
 		if target_columns[1][0] is None:
 			return jsonify({"error": "No matching entry found."}), 404
-		return jsonify({"target_columns[1][0]": target_columns[1][0]}), 200
+		# カスタムレスポンスでエスケープを防ぐ
+		response_data = {"target_columns[1][0]": target_columns[1][0]}
+		response = make_response(json.dumps(response_data, ensure_ascii=False))
+		response.headers['Content-Type'] = 'application/json; charset=utf-8'
+		return response, 200
 	
 	except requests.exceptions.RequestException as e:
 		return jsonify({"error": str(e)}), 500  # リクエストのエラーをキャッチ
