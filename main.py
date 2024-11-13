@@ -36,10 +36,14 @@ def main():
 					['Birthday__c','applicant_birthday','"birthday']
 				]
 	
-		for entry_body in appjson.get('entry_bodies',[]):
-			if entry_body.get('name')==target_columns[1][1]:
-				target_columns[1][0] = entry_body.get(target_columns[1][2],' ')
-				break	# 一致するものが見つかったらループを抜ける
+		for i in range(len(target_columns)):  # i を 0 から 3 まで繰り返す
+			for entry_body in appjson.get('entry_bodies', []):
+				# target_columns[i][1] が entry_body['name'] に一致するかチェック
+				if entry_body.get('name') == target_columns[i][1]:
+					# 一致する場合、対応する値を取得して target_columns[i][0] に格納
+					target_columns[i][0] = entry_body.get(target_columns[i][2], '')
+					print("target_columns[i][0]:"target_columns[i][0])
+					break  # 一致するものが見つかったら内側のループを抜ける
 		
 
 		if target_columns[1][0] is None:
