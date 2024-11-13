@@ -26,6 +26,7 @@ def main():
 		res.raise_for_status() # レスポンスが失敗した場合は例外を発生させる
 	
 		appjson = res.json()
+		print(appjson)
 		
 		#target_column = "applicant_moving_reason"
 		target_columns = [
@@ -39,11 +40,12 @@ def main():
 			if entry_body.get('name')==target_columns[1][1]:
 				target_columns[1][0] = entry_body.get(target_columns[1][2]).encode().decode("unicode_escape")
 				break	# 一致するものが見つかったらループを抜ける
-
+		
 
 		if target_columns[1][0] is None:
 			return jsonify({"error": "No matching entry found."}), 404
 		# カスタムレスポンスでエスケープを防ぐ
+		print(target_columns[1][0])
 		response_data = {"target_columns[1][0]": target_columns[1][0]}
 		response = make_response(json.dumps(response_data, ensure_ascii=False))
 		response.headers['Content-Type'] = 'application/json; charset=utf-8'
