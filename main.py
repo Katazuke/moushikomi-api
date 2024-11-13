@@ -38,8 +38,8 @@ def main():
 		target_columns = [
 					['LastName__c','applicant_name_kana','last_name'],
 					['FirstName__c','applicant_name_kana','first_name'],
-					['Sex__c','applicant_sex','"choice"'],
-					['Birthday__c','applicant_birthday','"birthday']
+					['Sex__c','applicant_sex','choice'],
+					['Birthday__c','applicant_birthday','birthday']
 				]
 	
 		# 各エントリを処理して値を辞書に格納
