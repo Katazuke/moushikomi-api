@@ -42,9 +42,9 @@ def main():
 				break	# 一致するものが見つかったらループを抜ける
 
 
-		if MovingReason__c is None:
+		if target_columns[1][0] is None:
 			return jsonify({"error": "No matching entry found."}), 404
-		return jsonify({"MovingReason__c": MovingReason__c}), 200
+		return jsonify({"target_columns[1][0]": target_columns[1][0]}), 200
 	
 	except requests.exceptions.RequestException as e:
 		return jsonify({"error": str(e)}), 500  # リクエストのエラーをキャッチ
