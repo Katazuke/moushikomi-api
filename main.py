@@ -5,12 +5,15 @@ app = Flask(__name__)
 
 @app.route('/')
 def main():
-	# クエリパラメータからapplication_idを取得
+	# クエリパラメータからapplication_idとrecord_idを取得
 	application_id = request.args.get('application_id')
+	record_id = request.args.get('record_id')
 
 	# application_idが指定されていない場合はエラーを返す
 	if not application_id:
 		return f"Error: 'application_id' parameter is required.", 400
+	#if not recor_id:
+		#return f"Error: 'record_id' parameter is required.", 400
 
 	# 送信先のURLを構築
 	url = f'https://moushikomi-uketsukekun.com/maintenance_company/api/v2/entry_heads/{application_id}'
@@ -54,8 +57,8 @@ def main():
 		if all(value is None for value in variables.values()):
 			return make_response(json.dumps({"error": "No matching entry found."}, ensure_ascii=False)), 404
 		# カスタムレスポンスでエスケープを防ぐ
-		
-		print(variables)
+
+		print(record_id)
 		response_data = {"variables": variables}
 		response = make_response(json.dumps(response_data, ensure_ascii=False))
 		response.headers['Content-Type'] = 'application/json; charset=utf-8'
