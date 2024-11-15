@@ -13,11 +13,11 @@ SF_TOKEN_URL = 'https://login.salesforce.com/services/oauth2/token'
 def get_salesforce_token():
 	"""Salesforceのアクセストークンを取得"""
 	payload = {
-		grant_type': 'password',
-		client_id': SF_CLIENT_ID,
-		client_secret': SF_CLIENT_SECRET,
-		username': SF_USERNAME,
-		password': SF_PASSWORD
+		'grant_type': 'password',
+		'client_id': SF_CLIENT_ID,
+		'client_secret': SF_CLIENT_SECRET,
+		'username': SF_USERNAME,
+		'password': SF_PASSWORD
 		}
 	response = requests.post(SF_TOKEN_URL, data=payload)
 	response.raise_for_status()
@@ -91,7 +91,9 @@ def main():
 		if sf_response.status_code == 204:
 			return jsonify({"success": "Record updated successfully"}), 200
 		else:
-			return jsonify({"error": sf_response.json()}), sf_response.status_code
+			error_message = sf_response.json() if sf_response.content else {"error": "Unknown error"}
+			logging.error(f"Salesforce API error: {error_message}")
+			return jsonify({"error": error_message}), sf_response.status_code
 
 
 	
