@@ -60,8 +60,8 @@ def main():
 			}
 		#target_column = "applicant_moving_reason"
 		target_columns = [
-					['EmergencyContact__c','guarantor_name_kana','last_name'],
-					['EmergencyContactKana__c','guarantor_name_kana','"last_name_kana'],
+					['EmergencyContact__c','emergency_name_kana','last_name'],
+					['EmergencyContactKana__c','emergency_name_kana','last_name_kana'],
 					['EmergencyContactSex__c','applicant_sex','choice'],
 					['EmergencyContactRelationship__c','guarantor_relationship','choice"']
 				]
@@ -90,7 +90,7 @@ def main():
 		print(variables)
 		sf_response = requests.patch(sf_url, headers=sf_headers, json=variables)
 		if sf_response.status_code == 204:
-			return jsonify({"success": "Record updated successfully"}), 200
+			return 
 		else:
 			error_message = sf_response.json() if sf_response.content else {"error": "Unknown error"}
 			logging.error(f"Salesforce API error: {error_message}")
