@@ -3,6 +3,26 @@ from flask import Flask,request,jsonify,json,make_response
 
 app = Flask(__name__)
 
+# Salesforce接続情報
+SF_CLIENT_ID = '3MVG96vIeT8jJWjKIhbYEse7lgOxIGPVFHjLMpe1oRUNOYQ2BO8iykQ08UKN9HZ2Z_ikNFsRV.zo.Mze_H948'
+SF_CLIENT_SECRET = 'F142768140C5559BD971EA504CB64524AF6AE9B2EFCEFEF710228A724FCAE88A'
+SF_USERNAME = 'dev@a-max.jp.0705test'
+SF_PASSWORD = 'Fj3zyT4fOES9IoD7xx76DXylR9IZ5O2tm'
+SF_TOKEN_URL = 'https://login.salesforce.com/services/oauth2/token'
+
+def get_salesforce_token():
+	"""Salesforceのアクセストークンを取得"""
+	payload = {
+		grant_type': 'password',
+		client_id': SF_CLIENT_ID,
+		client_secret': SF_CLIENT_SECRET,
+		username': SF_USERNAME,
+		password': SF_PASSWORD
+		}
+	response = requests.post(SF_TOKEN_URL, data=payload)
+	response.raise_for_status()
+	return response.json().get('access_token'), response.json().get('instance_url')
+
 @app.route('/')
 def main():
 	# クエリパラメータからapplication_idとrecord_idを取得
@@ -54,15 +74,26 @@ def main():
 					# 辞書内の該当キーに値を格納
 					variables[key] = entry_body.get(field_name, '')
 					break  # 一致するものが見つかったら内側のループを抜ける	
+
 		if all(value is None for value in variables.values()):
 			return make_response(json.dumps({"error": "No matching entry found."}, ensure_ascii=False)), 404
 		# カスタムレスポンスでエスケープを防ぐ
+		# Salesforceのレコード更新
+		access_token, instance_url = get_salesforce_token()
+		sf_url = f"{instance_url}/services/data/v54.0/sobjects/Application__c/{record_id}"  # Replace 'YourObjectName'
 
-		print(record_id)
-		response_data = {"variables": variables}
-		response = make_response(json.dumps(response_data, ensure_ascii=False))
-		response.headers['Content-Type'] = 'application/json; charset=utf-8'
-		return response, 200
+		sf_headers = {
+			'Authorization': f'Bearer {access_token}',
+			'Content-Type': 'application/json'
+			}
+
+		sf_response = requests.patch(sf_url, headers=sf_headers, json=variables)
+		if sf_response.status_code == 204:
+			return jsonify({"success": "Record updated successfully"}), 200
+		else:
+			return jsonify({"error": sf_response.json()}), sf_response.status_code
+
+
 	
 	except requests.exceptions.RequestException as e:
 		return make_response(json.dumps({"error": str(e)}, ensure_ascii=False)), 500  # リクエストのエラーをキャッチ
