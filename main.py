@@ -54,17 +54,17 @@ def main():
 		print(appjson)
 		
 		variables = {
-			"LastName__c": None,
-			"FirstName__c": None,
-			"Sex__c": None,
-			"Birthday__c": None,
+			"EmergencyContact__c": None,
+			"EmergencyContactKana__c": None,
+			"EmergencyContactSex__c": None,
+			"EmergencyContactRelationship__c": None,
 			}
 		#target_column = "applicant_moving_reason"
 		target_columns = [
-					['LastName__c','applicant_name_kana','last_name'],
-					['FirstName__c','applicant_name_kana','first_name'],
-					['Sex__c','applicant_sex','choice'],
-					['Birthday__c','applicant_birthday','birthday']
+					['EmergencyContact__c','guarantor_name_kana','last_name'],
+					['EmergencyContactKana__c','guarantor_name_kana','"last_name_kana'],
+					['EmergencyContactSex__c','applicant_sex','choice'],
+					['EmergencyContactRelationship__c','guarantor_relationship','choice"']
 				]
 	
 		# 各エントリを処理して値を辞書に格納
