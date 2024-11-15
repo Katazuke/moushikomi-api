@@ -51,7 +51,6 @@ def main():
 		res.raise_for_status() # レスポンスが失敗した場合は例外を発生させる
 	
 		appjson = res.json()
-		print(appjson)
 		
 		variables = {
 			"EmergencyContact__c": None,
@@ -82,15 +81,13 @@ def main():
 		# カスタムレスポンスでエスケープを防ぐ
 		# Salesforceのレコード更新
 		access_token, instance_url = get_salesforce_token()
-		print(access_token)
-		print(instance_url)
 		sf_url = f"{instance_url}/services/data/v54.0/sobjects/Application__c/{record_id}"  # Replace 'YourObjectName'
 
 		sf_headers = {
 			'Authorization': f'Bearer {access_token}',
 			'Content-Type': 'application/json'
 			}
-
+		print(variables)
 		sf_response = requests.patch(sf_url, headers=sf_headers, json=variables)
 		if sf_response.status_code == 204:
 			return jsonify({"success": "Record updated successfully"}), 200
