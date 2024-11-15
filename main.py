@@ -90,7 +90,7 @@ def main():
 		print(variables)
 		sf_response = requests.patch(sf_url, headers=sf_headers, json=variables)
 		if sf_response.status_code == 204:
-			return 
+			return jsonify({"success": "Record updated successfully"}), 200
 		else:
 			error_message = sf_response.json() if sf_response.content else {"error": "Unknown error"}
 			logging.error(f"Salesforce API error: {error_message}")
