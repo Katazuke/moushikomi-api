@@ -69,7 +69,14 @@ def create_renter_record(instance_url, headers, renter_data):
 	url = f"{instance_url}/services/data/v54.0/sobjects/Renter__c"
 	response = requests.post(url, headers=headers, json=renter_data)
 	response.raise_for_status()
-	return response.json()
+	try: # POST リクエスト
+		response = requests.post(url, headers=headers, json=data)
+		response.raise_for_status()
+		# レスポンス処理
+		logging.info(f"Record created successfully: {response.json()}")
+	except requests.exceptions.HTTPError as e:
+		logging.error(f"HTTP Error: {e}")
+		logging.error(f"Response content: {response.text}")
 
 @app.route('/')
 def main():
