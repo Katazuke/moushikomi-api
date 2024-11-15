@@ -41,10 +41,10 @@ def map_variables(data, columns):
 	return variables
 
 def format_birthday(birthday):
-	"""Birthday__c を yyyymmdd の形式に変換"""
-	try:
-		date_obj = datetime.fromisoformat(birthday.replace("Z", "+00:00"))
-		return date_obj.strftime("%Y%m%d")
+	"""Birthday__c を YYYY-MM-DD の形式に変換"""
+	try: # ISO 8601形式をパースして YYYY-MM-DD形式にフォーマット
+		date_obj = datetime.fromisoformat(birthday.split(".")[0])  # ミリ秒とタイムゾーンを無視
+		return date_obj.strftime("%Y-%m-%d")
 	except ValueError:
 		logging.error(f"Invalid birthday format: {birthday}")
 		return None
@@ -55,6 +55,7 @@ def get_duplicate_record_id(instance_url, headers, last_name, first_name, birthd
 		f"SELECT Id FROM Renter__c WHERE LastName__c = '{last_name}' "
 		f"AND FirstName__c = '{first_name}' AND Birthday__c = '{birthday}'"
 		)
+		
 	url = f"{instance_url}/services/data/v54.0/query?q={query}"
 	response = requests.get(url, headers=headers)
 	response.raise_for_status()
@@ -115,8 +116,7 @@ def main():
 		("EmergencyContactKana__c", "emergency_name_kana", "last_name_kana"),
 		("EmergencyContactSex__c", "emergency_sex", "choice"),
 		("EmergencyContactRelationship__c", "emergency_relationship", "choice"),
-		]
-		
+		]		
 		
 	# データ取得
 	rntvariables = map_variables(appjson, renter_columns)
