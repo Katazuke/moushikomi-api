@@ -60,6 +60,7 @@ def get_duplicate_record_id(instance_url, headers, last_name, first_name, birthd
 	response = requests.get(url, headers=headers)
 	response.raise_for_status()
 	records = response.json().get("records", [])
+	print(records)
 	return records[0]["Id"] if records else None
 
 
