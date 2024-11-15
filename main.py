@@ -3,6 +3,7 @@ from flask import Flask,request,jsonify,json,make_response
 import logging
 
 app = Flask(__name__)
+logging.basicConfig(level=logging.INFO)
 
 # Salesforce接続情報
 SF_CLIENT_ID = '3MVG96vIeT8jJWjKIhbYEse7lgOxIGPVFHjLMpe1oRUNOYQ2BO8iykQ08UKN9HZ2Z_ikNFsRV.zo.Mze_H948'
@@ -24,6 +25,20 @@ def get_salesforce_token():
 	response = requests.post(SF_TOKEN_URL, data=payload)
 	response.raise_for_status()
 	return response.json().get('access_token'), response.json().get('instance_url')
+
+def map_variables(data, columns):
+	"""汎用的なマッピング関数"""
+	variables = {}
+	for key, entry_name, field_name in columns:
+		if field_name is None:
+			variables[key] = data.get(entry_name)
+		else:
+			for entry_body in data.get("entry_bodies", []):
+				if entry_body.get("name") == entry_name:
+					variables[key] = entry_body.get(field_name, "")
+					break
+	return variables
+
 
 @app.route('/')
 def main():
@@ -51,55 +66,75 @@ def main():
 		res.raise_for_status() # レスポンスが失敗した場合は例外を発生させる
 	
 		appjson = res.json()
+		except ValueError:
+			logging.error("Failed to parse JSON from external API response")
+			return jsonify({"error": "Invalid JSON response from external API"}), 500
 		
-		variables = {
+		#賃借人オブジェクトのSF変数を定義
+		rntvariables ={
+			"RenterType__c":None,
+			"LastName__c":None,
+			"FirstName__c":None,
+			"Birthday__c":None,
+			}
+		
+		#申込オブジェクトのSF変数を定義
+		appvariables = {
 			"EmergencyContact__c": None,
 			"EmergencyContactKana__c": None,
 			"EmergencyContactSex__c": None,
-			"EmergencyContactRelationship__c": None,
+			"EmergencyContactRelationship__c": None
 			}
-		#target_column = "applicant_moving_reason"
-		target_columns = [
-					['EmergencyContact__c','emergency_name_kana','last_name'],
-					['EmergencyContactKana__c','emergency_name_kana','last_name_kana'],
-					['EmergencyContactSex__c','applicant_sex','choice'],
-					['EmergencyContactRelationship__c','guarantor_relationship','choice"']
-				]
+		
+		# 賃借人オブジェクトのマッピング条件
+		renter_columns = [
+			("RenterType__c", "corp", None),  # 1階層目
+			("LastName__c", "applicant_name_kana", "last_name"),  # 2階層目
+			("FirstName__c", "applicant_name_kana", "first_name"),  # 2階層目
+			("Birthday__c", "applicant_birthday", "birthday"),  # 2階層目
+			]
+
+		# 申込オブジェクトのマッピング条件
+		app_columns = [
+			("EmergencyContact__c", "emergency_name_kana", "last_name"),
+			("EmergencyContactKana__c", "emergency_name_kana", "last_name_kana"),
+			("EmergencyContactSex__c", "emergency_sex", "choice"),
+			("EmergencyContactRelationship__c", "emergency_relationship", "choice"),
+			]
 	
-		# 各エントリを処理して値を辞書に格納
-		for column in target_columns:
-			key, entry_name, field_name = column  # 要素を展開
-
-			for entry_body in appjson.get('entry_bodies', []):
-				if entry_body.get('name') == entry_name:
-					# 辞書内の該当キーに値を格納
-					variables[key] = entry_body.get(field_name, '')
-					break  # 一致するものが見つかったら内側のループを抜ける	
-
-		if all(value is None for value in variables.values()):
-			return make_response(json.dumps({"error": "No matching entry found."}, ensure_ascii=False)), 404
-		# カスタムレスポンスでエスケープを防ぐ
-		# Salesforceのレコード更新
+		# データ取得
+		rntvariables = map_variables(appjson, renter_columns)
+		appvariables = map_variables(appjson, app_columns)
+		
+		#アクセストークンを取得してSFAPIのヘッダを構築
 		access_token, instance_url = get_salesforce_token()
-		sf_url = f"{instance_url}/services/data/v54.0/sobjects/Application__c/{record_id}"  # Replace 'YourObjectName'
-
 		sf_headers = {
 			'Authorization': f'Bearer {access_token}',
-			'Content-Type': 'application/json'
+			'Content-Type': 'application/json',
 			}
-		print(variables)
-		sf_response = requests.patch(sf_url, headers=sf_headers, json=variables)
-		if sf_response.status_code == 204:
-			return jsonify({"success": "Record updated successfully"}), 200
-		else:
-			error_message = sf_response.json() if sf_response.content else {"error": "Unknown error"}
-			logging.error(f"Salesforce API error: {error_message}")
-			return jsonify({"error": error_message}), sf_response.status_code
 
+		# 賃借人オブジェクトの更新
+		renter_url = f"{instance_url}/services/data/v54.0/sobjects/Renter__c/{record_id}"
+		renter_response = requests.patch(renter_url, headers=sf_headers, json=rntvariables)
+		if renter_response.status_code != 204:
+			error_message = renter_response.json() if renter_response.content else {"error": "Unknown error"}
+			logging.error(f"Salesforce Renter update error: {error_message}")
+			return jsonify({"error": error_message}), renter_response.status_code
 
-	
+		# 申込オブジェクトの更新
+		app_url = f"{instance_url}/services/data/v54.0/sobjects/Application__c/{record_id}"
+		app_response = requests.patch(app_url, headers=sf_headers, json=appvariables)
+		if app_response.status_code != 204:
+			error_message = app_response.json() if app_response.content else {"error": "Unknown error"}
+			logging.error(f"Salesforce Application update error: {error_message}")
+			return jsonify({"error": error_message}), app_response.status_code
+
+		return jsonify({"success": "Both records updated successfully"}), 200
+
 	except requests.exceptions.RequestException as e:
-		return make_response(json.dumps({"error": str(e)}, ensure_ascii=False)), 500  # リクエストのエラーをキャッチ
+		logging.error(f"Request error: {e}")
+		return jsonify({"error": str(e)}), 500
+
 
 	# IPアドレステスト用URL
 	#ipurl = 'http://checkip.dyndns.com/'
