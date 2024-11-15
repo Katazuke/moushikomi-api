@@ -65,18 +65,18 @@ def get_duplicate_record_id(instance_url, headers, last_name, first_name, birthd
 
 
 def create_renter_record(instance_url, headers, renter_data):
-	"""新しい Renter__c レコードを作成"""
+	"""新しい Renter__c レコードを作成し、その ID を返す"""
 	url = f"{instance_url}/services/data/v54.0/sobjects/Renter__c"
-	response = requests.post(url, headers=headers, json=renter_data)
-	response.raise_for_status()
-	try: # POST リクエスト
-		response = requests.post(url, headers=headers, json=data)
-		response.raise_for_status()
-		# レスポンス処理
-		logging.info(f"Record created successfully: {response.json()}")
+	try:
+		response = requests.post(url, headers=headers, json=renter_data)
+		response.raise_for_status()  # エラーチェック
+		created_record = response.json()  # 作成されたレコードのレスポンスを取得
+		logging.info(f"Record created successfully: {created_record}")
+		return created_record  # 作成されたレコードの詳細を返す
 	except requests.exceptions.HTTPError as e:
 		logging.error(f"HTTP Error: {e}")
 		logging.error(f"Response content: {response.text}")
+		raise  # エラーを呼び出し元に伝える
 
 @app.route('/')
 def main():
