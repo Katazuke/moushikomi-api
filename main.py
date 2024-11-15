@@ -53,7 +53,7 @@ def get_duplicate_record_id(instance_url, headers, last_name, first_name, birthd
 	"""Salesforceで重複レコードを検索し、IDを取得"""
 	query = (
 		f"SELECT Id FROM Renter__c WHERE LastName__c = '{last_name}' "
-		f"AND FirstName__c = '{first_name}' AND Birthday__c = '{birthday}'"
+		f"AND FirstName__c = '{first_name}' AND Birthday__c ={birthday}"
 		)
 		
 	url = f"{instance_url}/services/data/v54.0/query?q={query}"
