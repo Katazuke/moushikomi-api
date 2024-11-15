@@ -19,6 +19,7 @@ def get_salesforce_token():
 		'username': SF_USERNAME,
 		'password': SF_PASSWORD
 		}
+	print(payload)
 	response = requests.post(SF_TOKEN_URL, data=payload)
 	response.raise_for_status()
 	return response.json().get('access_token'), response.json().get('instance_url')
@@ -80,6 +81,8 @@ def main():
 		# カスタムレスポンスでエスケープを防ぐ
 		# Salesforceのレコード更新
 		access_token, instance_url = get_salesforce_token()
+		print(access_token)
+		print(instance_url)
 		sf_url = f"{instance_url}/services/data/v54.0/sobjects/Application__c/{record_id}"  # Replace 'YourObjectName'
 
 		sf_headers = {
