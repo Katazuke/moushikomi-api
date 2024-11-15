@@ -83,7 +83,6 @@ def main():
 
 	# 送信先のURLを構築
 	url = f'https://moushikomi-uketsukekun.com/maintenance_company/api/v2/entry_heads/{application_id}'
-	#url = f'https://moushikomi-uketsukekun.com/maintenance_company/api/v2/entry_heads/3663121'	
 	
 	#ヘッダ情報を定義（Authorizationヘッダを含む）
 	iapikey = 'Token 5a5030e472a8f92a87e4e093f4161944'
@@ -163,8 +162,7 @@ def main():
 		logging.error(f"Salesforce Application update error: {error_message}")
 		return jsonify({"error": error_message}), app_response.status_code
 
-	return jsonify({"success": "Both records updated successfully"}), 200
-
+	return None
 	
 
 	# IPアドレステスト用URL
