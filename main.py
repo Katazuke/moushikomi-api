@@ -172,7 +172,7 @@ def main():
 		logging.info(f"renter_data: {renter_data}")
 	if renter_data:
 		new_record = create_renter_record(instance_url, sf_headers, renter_data)
-		appvariables["Contructor__c"] = new_record.get("id")
+		appvariables["Contractor__c"] = new_record.get("id")
 
 	# 申込オブジェクトの更新
 	app_url = f"{instance_url}/services/data/v54.0/sobjects/Application__c/{record_id}"
