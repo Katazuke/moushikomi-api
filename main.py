@@ -145,6 +145,7 @@ def main():
 
 	# RenterType__c が False の場合、重複チェックと新規作成
 	if not rntvariables.get("RenterType__c"):
+		renter_type = rntvariables.get("RenterType__c")
 		last_name = rntvariables.get("LastName__c")
 		first_name = rntvariables.get("FirstName__c")
 		birthday = rntvariables.get("Birthday__c")
@@ -155,6 +156,7 @@ def main():
 			appvariables["Contructor__c"] = duplicate_id
 		else:            # 重複がない場合、新しい Renter__c レコードを作成
 			renter_data = {
+				"RenterType__c"
 				"LastName__c": last_name,
 				"FirstName__c": first_name,
 				"Birthday__c": birthday,
