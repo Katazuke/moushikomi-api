@@ -84,6 +84,21 @@ def create_renter_record(instance_url, headers, renter_data):
 		logging.error(f"Response content: {response.text}")
 		raise  # エラーを呼び出し元に伝える
 
+def map_relationship(value):
+	"""指定された関係性データをSalesforce選択肢に変換"""
+	relationship_mapping = {
+		"父母": "親",
+		"祖父母": "その他",
+		"子": "子",
+		"孫": "その他",
+		"兄弟姉妹": "兄弟姉妹",
+		"配偶者": "配偶者",
+		"その他": "その他"
+		}
+	# マッピングが存在しない場合はデフォルトで 'その他' を返す
+	return relationship_mapping.get(value, "その他")
+
+
 @app.route('/')
 def main():
 	# クエリパラメータからapplication_idとrecord_idを取得
@@ -142,6 +157,10 @@ def main():
 	if not formatted_birthday:
 		return jsonify({"error": "Invalid Birthday__c format"}), 400
 	rntvariables["Birthday__c"] = formatted_birthday
+
+	# Relationship の選択肢を変換
+	if "EmergencyContactRelationship__c" in appvariables:
+		appvariables["EmergencyContactRelationship__c"] = map_relationship(appvariables["EmergencyContactRelationship__c"])
 
 	#アクセストークンを取得してSFAPIのヘッダを構築
 	access_token, instance_url = get_salesforce_token()
