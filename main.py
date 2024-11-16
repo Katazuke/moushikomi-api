@@ -22,7 +22,6 @@ def get_salesforce_token():
 		'username': SF_USERNAME,
 		'password': SF_PASSWORD
 		}
-	print(payload)
 	response = requests.post(SF_TOKEN_URL, data=payload)
 	response.raise_for_status()
 	return response.json().get('access_token'), response.json().get('instance_url')
@@ -170,7 +169,7 @@ def main():
 				"FirstName__c": first_name,
 				"Birthday__c": birthday,
 			}
-		print(renter_data)
+		logging.info(f"renter_data: {renter_data}")
 		new_record = create_renter_record(instance_url, sf_headers, renter_data)
 		appvariables["Contructor__c"] = new_record.get("id")
 
