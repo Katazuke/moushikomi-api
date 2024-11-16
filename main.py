@@ -40,6 +40,13 @@ def map_variables(data, columns):
 					break
 	return variables
 
+def format_rentertype(rentertype):
+	"""Rentertype__c を '法人' または '個人' に変換"""
+	if rentertype:
+		return "法人"
+	else:
+		return "個人"
+
 def format_birthday(birthday):
 	"""Birthday__c を YYYY-MM-DD の形式に変換"""
 	try: # ISO 8601形式をパースして YYYY-MM-DD形式にフォーマット
@@ -53,7 +60,7 @@ def get_duplicate_record_id(instance_url, headers, last_name, first_name, birthd
 	"""Salesforceで重複レコードを検索し、IDを取得"""
 	query = (
 		f"SELECT Id FROM Renter__c WHERE LastName__c = '{last_name}' "
-		f"AND FirstName__c = '{first_name}' AND Birthday__c ={birthday}"
+		f"AND FirstName__c = '{first_name}' AND Birthday__c ='{birthday}'"
 		)
 		
 	url = f"{instance_url}/services/data/v54.0/query?q={query}"
@@ -129,7 +136,8 @@ def main():
 	# データ取得
 	rntvariables = map_variables(appjson, renter_columns)
 	appvariables = map_variables(appjson, app_columns)
-		
+	
+	
 	# Birthday__c を yyyymmdd にフォーマット
 	formatted_birthday = format_birthday(rntvariables.get("Birthday__c"))
 	if not formatted_birthday:
@@ -145,7 +153,7 @@ def main():
 
 	# RenterType__c が False の場合、重複チェックと新規作成
 	if not rntvariables.get("RenterType__c"):
-		renter_type = rntvariables.get("RenterType__c")
+		renter_type = format_rentertype(rntvariables.get("RenterType__c"))
 		last_name = rntvariables.get("LastName__c")
 		first_name = rntvariables.get("FirstName__c")
 		birthday = rntvariables.get("Birthday__c")
@@ -156,7 +164,7 @@ def main():
 			appvariables["Contructor__c"] = duplicate_id
 		else:            # 重複がない場合、新しい Renter__c レコードを作成
 			renter_data = {
-				"RenterType__c"
+				"RenterType__c": renter_type,
 				"LastName__c": last_name,
 				"FirstName__c": first_name,
 				"Birthday__c": birthday,
