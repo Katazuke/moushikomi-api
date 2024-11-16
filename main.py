@@ -92,7 +92,7 @@ def main():
 
 	# application_idが指定されていない場合はエラーを返す
 	if not application_id:
-		return f"Error: 'application_id' parameter is required.", 400
+		return jsonify({"error": "'application_id' parameter is required."}), 400
 	#if not recor_id:
 		#return f"Error: 'record_id' parameter is required.", 400
 
@@ -151,6 +151,7 @@ def main():
 	}
 
 	# RenterType__c が False の場合、重複チェックと新規作成
+	renter_data = None
 	if not rntvariables.get("RenterType__c"):
 		renter_type = format_rentertype(rntvariables.get("RenterType__c"))
 		last_name = rntvariables.get("LastName__c")
@@ -169,6 +170,7 @@ def main():
 				"Birthday__c": birthday,
 			}
 		logging.info(f"renter_data: {renter_data}")
+	if renter_data:
 		new_record = create_renter_record(instance_url, sf_headers, renter_data)
 		appvariables["Contructor__c"] = new_record.get("id")
 
