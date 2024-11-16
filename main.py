@@ -171,7 +171,7 @@ def main():
 				"Birthday__c": birthday,
 			}
 		print(renter_data)
-		new_record = create_renter_record(instance_url, sf_headers, json=renter_data)
+		new_record = create_renter_record(instance_url, sf_headers, renter_data)
 		appvariables["Contructor__c"] = new_record.get("id")
 
 	# 申込オブジェクトの更新
