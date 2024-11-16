@@ -162,6 +162,7 @@ def main():
 		
 		if duplicate_id: # 重複があった場合、既存のRenter__cレコードIDをappvariablesに格納
 			appvariables["Contructor__c"] = duplicate_id
+			renter_data = None 
 		else:            # 重複がない場合、新しい Renter__c レコードを作成
 			renter_data = {
 				"RenterType__c": renter_type,
