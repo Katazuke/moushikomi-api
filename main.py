@@ -187,6 +187,7 @@ def main():
 	if duplicate_id: # 重複があった場合、既存のRenter__cレコードIDを一時変数に格納
 		contractor_id = duplicate_id
 	else:            # 重複がない場合、新しい Renter__c レコードを作成
+		logging.info(f"renter_header: {sf_headers}")
 		logging.info(f"renter_data: {renter_data}")
 		new_record = create_renter_record(instance_url, sf_headers, renter_data)
 		contractor_id = new_record.get("id")
@@ -196,7 +197,8 @@ def main():
 	if duplicate_id:
 		tenant_id = duplicate_id
 	else:		# 重複がない場合、新しい Renter__c レコードを作成
-		logging.info(f"tenant_data: {renter_data}")
+		logging.info(f"tenant_data: {sf_headers}")
+		logging.info(f"tenant_data: {tenant_data}")
 		new_record = create_renter_record(instance_url, sf_headers, tenant_data)
 		tenant_id = new_record.get("id")
 
