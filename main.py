@@ -26,7 +26,7 @@ RENTER_COLUMNS_MAPPING = { 						# RenterType による契約者マッピング�
 		("CorporateNumber__c", "corp_info_corporate_number", "text"),  
 		("Birthday__c", "corp_info_foundation_date", "date"),  
 		],
-	"入居者1": [
+	"入居者": [
 		("RenterType__c",None,None),
 		("LastName__c", "tenant1_name_kana", "last_name"),  	# 2階層目
 		("FirstName__c", "tenant1_name_kana", "first_name"),  
@@ -186,15 +186,7 @@ def main():
 	duplicate_id = check_duplicate_record(instance_url, headers, renter_data)
 	if duplicate_id: # 重複があった場合、既存のRenter__cレコードIDを一時変数に格納
 		contractor_id = duplicate_id
-	#	appvariables["Contractor__c"] = duplicate_id
-			
 	else:            # 重複がない場合、新しい Renter__c レコードを作成
-	#	renter_data = {
-	#		"RenterType__c": renter_type,
-	#		"LastName__c": last_name,
-	#		"FirstName__c": first_name,
-	#		"Birthday__c": birthday,
-	#		}
 		logging.info(f"renter_data: {renter_data}")
 		new_record = create_renter_record(instance_url, sf_headers, renter_data)
 		contractor_id = new_record.get("id")
