@@ -167,12 +167,12 @@ def main():
 	renter_type = "法人" if appjson.get("corp") else "個人"
 	renter_data =  map_variables(appjson, RENTER_COLUMNS_MAPPING[renter_type])
 	renter_data["RenterType__c"] = renter_type
-	renter_data["Birthday__c"] = formatted_birthday(renter_data["Birthday__c"])
+	renter_data["Birthday__c"] = format_birthday(renter_data["Birthday__c"])
 
 	# 賃借人オブジェクトから個人/法人に分けて入居者のマッピング表を選択
 	tenant_data =  map_variables(appjson, RENTER_COLUMNS_MAPPING["入居者"])
 	tenant_data["RenterType__c"] = "個人"
-	tenant_data["Birthday__c"] = formatted_birthday(tenant_data["Birthday__c"])
+	tenant_data["Birthday__c"] = format_birthday(tenant_data["Birthday__c"])
 
 	# STEP 4: 契約者情報の重複チェック
 	#アクセストークンを取得してSFAPIのヘッダを構築
