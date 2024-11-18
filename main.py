@@ -13,6 +13,37 @@ SF_USERNAME = 'dev@a-max.jp.0705test'
 SF_PASSWORD = 'Fj3zyT4f'
 SF_TOKEN_URL = 'https://a-max--0705test.sandbox.my.salesforce.com/services/oauth2/token'
 
+RENTER_COLUMNS_MAPPING = { 						# RenterType による契約者マッピング条件の辞書
+	"個人": [
+		("RenterType__c",None,None),
+		("LastName__c", "applicant_name_kana", "last_name"),	# 2階層目
+		("FirstName__c", "applicant_name_kana", "first_name"),	
+		("Birthday__c", "applicant_birthday", "birthday"),
+		],
+	"法人": [
+		("RenterType__c",None,None),
+		("LastName__c", "corp_applicant_workplace", "text"),  	# 2階層目
+		("CorporateNumber__c", "corp_info_corporate_number", "text"),  
+		("Birthday__c", "corp_info_foundation_date", "date"),  
+		],
+	"入居者1": [
+		("RenterType__c",None,None),
+		("LastName__c", "tenant1_name_kana", "last_name"),  	# 2階層目
+		("FirstName__c", "tenant1_name_kana", "first_name"),  
+		("Birthday__c", "tenant1_birthday","birthday"),  
+		],
+	}
+
+
+APPLICATION_COLUMNS_MAPPING = [
+		("Contractor__c",None,None),
+		("Resident1__c",None,None),
+		("EmergencyContact__c", "emergency_name_kana", "last_name"),
+		("EmergencyContactKana__c", "emergency_name_kana", "last_name_kana"),
+		("EmergencyContactSex__c", "emergency_sex", "choice"),
+		("EmergencyContactRelationship__c", "emergency_relationship", "choice"),
+		]
+
 def get_salesforce_token():
 	"""Salesforceのアクセストークンを取得"""
 	payload = {
@@ -26,11 +57,14 @@ def get_salesforce_token():
 	response.raise_for_status()
 	return response.json().get('access_token'), response.json().get('instance_url')
 
+
 def map_variables(data, columns):
 	"""汎用的なマッピング関数"""
 	variables = {}
 	for key, entry_name, field_name in columns:
-		if field_name is None:
+		if entry_name is None:
+			variables[key] = None
+		elif field_name is None:
 			variables[key] = data.get(entry_name)
 		else:
 			for entry_body in data.get("entry_bodies", []):
@@ -39,12 +73,22 @@ def map_variables(data, columns):
 					break
 	return variables
 
-def format_rentertype(rentertype):
-	"""Rentertype__c を '法人' または '個人' に変換"""
-	if rentertype:
-		return "法人"
+def check_duplicate_record(instance_url, headers, renter_data):
+	"""賃借人オブジェクト内の重複チェック"""
+	if renter_data["RenterType__c"] == "法人":
+		query = f"SELECT Id FROM Renter__c WHERE CorporateNumber__c = '{renter_data.get('CorporateNumber__c')}'"
 	else:
-		return "個人"
+		query = (
+			f"SELECT Id FROM Renter__c WHERE LastName__c = '{renter_data.get('LastName__c')}' "
+			f"AND FirstName__c = '{renter_data.get('FirstName__c')}' "
+			f"AND Birthday__c = '{renter_data.get('Birthday__c')}'"
+		)
+	url = f"{instance_url}/services/data/v54.0/query?q={query}"
+	response = requests.get(url, headers=headers)
+	response.raise_for_status()
+	records = response.json().get("records", [])
+	return records[0]["Id"] if records else None
+
 
 def format_birthday(birthday):
 	"""Birthday__c を YYYY-MM-DD の形式に変換"""
@@ -54,20 +98,6 @@ def format_birthday(birthday):
 	except ValueError:
 		logging.error(f"Invalid birthday format: {birthday}")
 		return None
-
-def get_duplicate_record_id(instance_url, headers, last_name, first_name, birthday):
-	"""Salesforceで重複レコードを検索し、IDを取得"""
-	query = (
-		f"SELECT Id FROM Renter__c WHERE LastName__c = '{last_name}' "
-		f"AND FirstName__c = '{first_name}' AND Birthday__c ={birthday}"
-		)
-		
-	url = f"{instance_url}/services/data/v54.0/query?q={query}"
-	response = requests.get(url, headers=headers)
-	response.raise_for_status()
-	records = response.json().get("records", [])
-	print(records)
-	return records[0]["Id"] if records else None
 
 
 def create_renter_record(instance_url, headers, renter_data):
@@ -101,7 +131,7 @@ def map_relationship(value):
 
 @app.route('/')
 def main():
-	# クエリパラメータからapplication_idとrecord_idを取得
+	# STEP 1: クエリパラメータからapplication_idとrecord_idを取得
 	application_id = request.args.get('application_id')
 	record_id = request.args.get('record_id')
 
@@ -111,6 +141,7 @@ def main():
 	#if not recor_id:
 		#return f"Error: 'record_id' parameter is required.", 400
 
+	# STEP 2: APIからデータ取得
 	# 送信先のURLを構築
 	url = f'https://moushikomi-uketsukekun.com/maintenance_company/api/v2/entry_heads/{application_id}'
 	
@@ -130,38 +161,20 @@ def main():
 		logging.error("Failed to parse JSON from external API response")
 		return jsonify({"error": "Invalid JSON response from external API"}), 500
 		
-		
-	# 賃借人オブジェクトのマッピング条件
-	renter_columns = [
-		("RenterType__c", "corp", None),  # 1階層目
-		("LastName__c", "applicant_name_kana", "last_name"),  # 2階層目
-		("FirstName__c", "applicant_name_kana", "first_name"),  # 2階層目
-		("Birthday__c", "applicant_birthday", "birthday"),  # 2階層目
-		]
-
-	# 申込オブジェクトのマッピング条件
-	app_columns = [
-		("EmergencyContact__c", "emergency_name_kana", "last_name"),
-		("EmergencyContactKana__c", "emergency_name_kana", "last_name_kana"),
-		("EmergencyContactSex__c", "emergency_sex", "choice"),
-		("EmergencyContactRelationship__c", "emergency_relationship", "choice"),
-		]		
-		
-	# データ取得
-	rntvariables = map_variables(appjson, renter_columns)
-	appvariables = map_variables(appjson, app_columns)
 	
-	
-	# Birthday__c を yyyymmdd にフォーマット
-	formatted_birthday = format_birthday(rntvariables.get("Birthday__c"))
-	if not formatted_birthday:
-		return jsonify({"error": "Invalid Birthday__c format"}), 400
-	rntvariables["Birthday__c"] = formatted_birthday
+	# STEP 3: 個人/法人のマッピング表を選択
+	# 賃借人オブジェクトから個人/法人に分けて契約者のマッピング表を選択
+	renter_type = "法人" if appjson.get("corp") else "個人"
+	renter_data =  map_variables(appjson, RENTER_COLUMNS_MAPPING[renter_type])
+	renter_data["RenterType__c"] = renter_type
+	renter_data["Birthday__c"] = formatted_birthday(renter_data["Birthday__c"])
 
-	# Relationship の選択肢を変換
-	if "EmergencyContactRelationship__c" in appvariables:
-		appvariables["EmergencyContactRelationship__c"] = map_relationship(appvariables["EmergencyContactRelationship__c"])
+	# 賃借人オブジェクトから個人/法人に分けて入居者のマッピング表を選択
+	tenant_data =  map_variables(appjson, RENTER_COLUMNS_MAPPING["入居者"])
+	tenant_data["RenterType__c"] = "個人"
+	tenant_data["Birthday__c"] = formatted_birthday(tenant_data["Birthday__c"])
 
+	# STEP 4: 契約者情報の重複チェック
 	#アクセストークンを取得してSFAPIのヘッダを構築
 	access_token, instance_url = get_salesforce_token()
 	sf_headers = {
@@ -169,33 +182,50 @@ def main():
 		'Content-Type': 'application/json',
 	}
 
-	# RenterType__c が False の場合、重複チェックと新規作成
-	renter_data = None
-	if not rntvariables.get("RenterType__c"):
-		renter_type = format_rentertype(rntvariables.get("RenterType__c"))
-		last_name = rntvariables.get("LastName__c")
-		first_name = rntvariables.get("FirstName__c")
-		birthday = rntvariables.get("Birthday__c")
-		duplicate_id = get_duplicate_record_id(instance_url, sf_headers, last_name, first_name, birthday)
-	
-		if duplicate_id: # 重複があった場合、既存のRenter__cレコードIDをappvariablesに格納
-			appvariables["Contractor__c"] = duplicate_id
+	# 契約者重複チェックと重複しない場合に新規作成
+	duplicate_id = check_duplicate_record(instance_url, headers, renter_data)
+	if duplicate_id: # 重複があった場合、既存のRenter__cレコードIDを一時変数に格納
+		contractor_id = duplicate_id
+	#	appvariables["Contractor__c"] = duplicate_id
 			
-		else:            # 重複がない場合、新しい Renter__c レコードを作成
-			renter_data = {
-				"RenterType__c": renter_type,
-				"LastName__c": last_name,
-				"FirstName__c": first_name,
-				"Birthday__c": birthday,
-			}
+	else:            # 重複がない場合、新しい Renter__c レコードを作成
+	#	renter_data = {
+	#		"RenterType__c": renter_type,
+	#		"LastName__c": last_name,
+	#		"FirstName__c": first_name,
+	#		"Birthday__c": birthday,
+	#		}
 		logging.info(f"renter_data: {renter_data}")
-	if renter_data:
 		new_record = create_renter_record(instance_url, sf_headers, renter_data)
-		appvariables["Contractor__c"] = new_record.get("id")
+		contractor_id = new_record.get("id")
+	
+	# 入居者重複チェックと重複しない場合に新規作成
+	duplicate_id = check_duplicate_record(instance_url, headers, tenant_data)
+	if duplicate_id:
+		tenant_id = duplicate_id
+	else:		# 重複がない場合、新しい Renter__c レコードを作成
+		logging.info(f"tenant_data: {renter_data}")
+		new_record = create_renter_record(instance_url, sf_headers, tenant_data)
+		tenant_id = new_record.get("id")
+
+
+	# STEP 7: 申込情報の更新	
+	# データ取得
+	app_data = map_variables(appjson, APPLICATION_COLUMNS_MAPPING)
+	
+
+	# Relationship の選択肢を変換
+	if "EmergencyContactRelationship__c" in app_data:
+		app_data["EmergencyContactRelationship__c"] = map_relationship(app_data["EmergencyContactRelationship__c"])
+
+	#契約者と入居者レコードIDを埋める
+		app_data[Contractor__C]=contractor_id
+		app_data[Resident__C]=tenant_id
+
 
 	# 申込オブジェクトの更新
 	app_url = f"{instance_url}/services/data/v54.0/sobjects/Application__c/{record_id}"
-	app_response = requests.patch(app_url, headers=sf_headers, json=appvariables)
+	app_response = requests.patch(app_url, headers=sf_headers, json=app_data)
 	if app_response.status_code != 204:
 		error_message = app_response.json() if app_response.content else {"error": "Unknown error"}
 		logging.error(f"Salesforce Application update error: {error_message}")
