@@ -183,7 +183,7 @@ def main():
 	}
 
 	# 契約者重複チェックと重複しない場合に新規作成
-	duplicate_id = check_duplicate_record(instance_url, headers, renter_data)
+	duplicate_id = check_duplicate_record(instance_url, sf_headers, renter_data)
 	if duplicate_id: # 重複があった場合、既存のRenter__cレコードIDを一時変数に格納
 		contractor_id = duplicate_id
 	else:            # 重複がない場合、新しい Renter__c レコードを作成
@@ -193,7 +193,7 @@ def main():
 		contractor_id = new_record.get("id")
 	
 	# 入居者重複チェックと重複しない場合に新規作成
-	duplicate_id = check_duplicate_record(instance_url, headers, tenant_data)
+	duplicate_id = check_duplicate_record(instance_url, sf_headers, tenant_data)
 	if duplicate_id:
 		tenant_id = duplicate_id
 	else:		# 重複がない場合、新しい Renter__c レコードを作成
