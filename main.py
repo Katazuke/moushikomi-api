@@ -192,8 +192,8 @@ def main():
 	# STEP 7: 申込情報の更新	
 	# データ取得
 	app_data = map_variables(appjson, APPLICATION_COLUMNS_MAPPING)
-	app_data[Contractor__C]=contractor_id
-	app_data[Resident__C]=tenant_id
+	app_data[Contractor__c]=contractor_id
+	app_data[Resident__c]=tenant_id
 
 
 	# Relationship の選択肢を変換
