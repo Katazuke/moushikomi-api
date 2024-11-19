@@ -191,6 +191,7 @@ def main():
 
 	# STEP 7: 申込情報の更新	
 	# データ取得
+	logging.info("app_data={app_data}")
 	app_data = map_variables(appjson, APPLICATION_COLUMNS_MAPPING)
 	app_data[Contractor__c]=contractor_id
 	app_data[Resident__c]=tenant_id
