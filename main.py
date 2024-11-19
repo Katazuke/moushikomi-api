@@ -34,7 +34,7 @@ SF_TOKEN_URL = 'https://a-max--0705test.sandbox.my.salesforce.com/services/oauth
 #		],
 #	}
 
-RENTER_COLUMNS_MAPPING2 = { 						# RenterType による契約者マッピング条件の辞書
+RENTER_COLUMNS_MAPPING = { 						# RenterType による契約者マッピング条件の辞書
 	"個人": {
 		"契約者":[
 			("RenterType__c",None,None),
