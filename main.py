@@ -184,7 +184,7 @@ def main():
 	}
 	print(sf_headers)
 	# 契約者重複チェックと重複しない場合に新規作成
-	 contractor_id = check_duplicate_record(instance_url, sf_headers, renter_data) or create_renter_record(instance_url, sf_headers, renter_data)
+	contractor_id = check_duplicate_record(instance_url, sf_headers, renter_data) or create_renter_record(instance_url, sf_headers, renter_data)
 	
 	# 入居者重複チェックと重複しない場合に新規作成
 	tenant_id = check_duplicate_record(instance_url, sf_headers, tenant_data) or create_renter_record(instance_url, sf_headers, tenant_data)
