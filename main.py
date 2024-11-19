@@ -13,26 +13,57 @@ SF_USERNAME = 'dev@a-max.jp.0705test'
 SF_PASSWORD = 'Fj3zyT4f'
 SF_TOKEN_URL = 'https://a-max--0705test.sandbox.my.salesforce.com/services/oauth2/token'
 
-RENTER_COLUMNS_MAPPING = { 						# RenterType による契約者マッピング条件の辞書
+#RENTER_COLUMNS_MAPPING = { 						# RenterType による契約者マッピング条件の辞書
+#	"個人": [
+#		("RenterType__c",None,None),
+#		("LastName__c", "applicant_name_kana", "last_name"),	# 2階層目
+#		("FirstName__c", "applicant_name_kana", "first_name"),	
+#		("Birthday__c", "applicant_birthday", "birthday"),
+#		],
+#	"法人": [
+#		("RenterType__c",None,None),
+#		("LastName__c", "corp_applicant_workplace", "text"),  	# 2階層目
+#		("CorporateNumber__c", "corp_info_corporate_number", "text"),  
+#		("Birthday__c", "corp_info_foundation_date", "date"),  
+#		],
+#	"入居者": [
+#		("RenterType__c",None,None),
+#		("LastName__c", "tenant1_name_kana", "last_name"),  	# 2階層目
+#		("FirstName__c", "tenant1_name_kana", "first_name"),  
+#		("Birthday__c", "tenant1_birthday","birthday"),  
+#		],
+#	}
+
+RENTER_COLUMNS_MAPPING2 = { 						# RenterType による契約者マッピング条件の辞書
 	"個人": [
-		("RenterType__c",None,None),
-		("LastName__c", "applicant_name_kana", "last_name"),	# 2階層目
-		("FirstName__c", "applicant_name_kana", "first_name"),	
-		("Birthday__c", "applicant_birthday", "birthday"),
+		"契約者":[
+			("RenterType__c",None,None),
+			("LastName__c", "applicant_name_kana", "last_name"),	# 2階層目
+			("FirstName__c", "applicant_name_kana", "first_name"),	
+			("Birthday__c", "applicant_birthday", "birthday"),
+			],
+		"入居者":[("RenterType__c",None,None),
+			("LastName__c", "tenant1_name_kana", "last_name"),  	# 2階層目
+			("FirstName__c", "tenant1_name_kana", "first_name"),  
+			("Birthday__c", "tenant1_birthday","birthday"), 
+			],
 		],
 	"法人": [
-		("RenterType__c",None,None),
-		("LastName__c", "corp_applicant_workplace", "text"),  	# 2階層目
-		("CorporateNumber__c", "corp_info_corporate_number", "text"),  
-		("Birthday__c", "corp_info_foundation_date", "date"),  
-		],
-	"入居者": [
-		("RenterType__c",None,None),
-		("LastName__c", "tenant1_name_kana", "last_name"),  	# 2階層目
-		("FirstName__c", "tenant1_name_kana", "first_name"),  
-		("Birthday__c", "tenant1_birthday","birthday"),  
+		"契約者":[
+			("RenterType__c",None,None),
+			("LastName__c", "corp_applicant_workplace", "text"),  	# 2階層目
+			("CorporateNumber__c", "corp_info_corporate_number", "text"),  
+			("Birthday__c", "corp_info_foundation_date", "date"),  
+			],
+		"入居者": [
+			("RenterType__c",None,None),
+			("LastName__c", "tenant1_name_kana", "last_name"),  	# 2階層目
+			("FirstName__c", "tenant1_name_kana", "first_name"),  
+			("Birthday__c", "tenant1_birthday","birthday"),
+	  		],
 		],
 	}
+
 
 
 APPLICATION_COLUMNS_MAPPING = [
@@ -166,12 +197,12 @@ def main():
 	# STEP 3: 個人/法人のマッピング表を選択
 	# 賃借人オブジェクトから個人/法人に分けて契約者のマッピング表を選択
 	renter_type = "法人" if appjson.get("corp") else "個人"
-	renter_data =  map_variables(appjson, RENTER_COLUMNS_MAPPING[renter_type])
+	renter_data =  map_variables(appjson, RENTER_COLUMNS_MAPPING[renter_type]["契約者"])
 	renter_data["RenterType__c"] = renter_type
 	renter_data["Birthday__c"] = format_birthday(renter_data["Birthday__c"])
 
 	# 賃借人オブジェクトから個人/法人に分けて入居者のマッピング表を選択
-	tenant_data =  map_variables(appjson, RENTER_COLUMNS_MAPPING["入居者"])
+	tenant_data =  map_variables(appjson, RENTER_COLUMNS_MAPPING[renter_type]["入居者"])
 	tenant_data["RenterType__c"] = "個人"
 	tenant_data["Birthday__c"] = format_birthday(tenant_data["Birthday__c"])
 
