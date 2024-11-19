@@ -81,7 +81,7 @@ def check_duplicate_record(instance_url, headers, renter_data):
 		query = (
 			f"SELECT Id FROM Renter__c WHERE LastName__c = '{renter_data.get('LastName__c')}' "
 			f"AND FirstName__c = '{renter_data.get('FirstName__c')}' "
-			f"AND Birthday__c = '{renter_data.get('Birthday__c')}'"
+			f"AND Birthday__c = {renter_data.get('Birthday__c')}"
 		)
 	url = f"{instance_url}/services/data/v54.0/query?q={query}"
 	logging.info(f"URL: {url} & renter_data:{renter_data}")
