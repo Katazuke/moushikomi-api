@@ -35,7 +35,7 @@ SF_TOKEN_URL = 'https://a-max--0705test.sandbox.my.salesforce.com/services/oauth
 #	}
 
 RENTER_COLUMNS_MAPPING2 = { 						# RenterType による契約者マッピング条件の辞書
-	"個人": [
+	"個人": {
 		"契約者":[
 			("RenterType__c",None,None),
 			("LastName__c", "applicant_name_kana", "last_name"),	# 2階層目
@@ -47,8 +47,8 @@ RENTER_COLUMNS_MAPPING2 = { 						# RenterType による契約者マッピング
 			("FirstName__c", "tenant1_name_kana", "first_name"),  
 			("Birthday__c", "tenant1_birthday","birthday"), 
 			],
-		],
-	"法人": [
+		},
+	"法人": {
 		"契約者":[
 			("RenterType__c",None,None),
 			("LastName__c", "corp_applicant_workplace", "text"),  	# 2階層目
@@ -61,7 +61,7 @@ RENTER_COLUMNS_MAPPING2 = { 						# RenterType による契約者マッピング
 			("FirstName__c", "tenant1_name_kana", "first_name"),  
 			("Birthday__c", "tenant1_birthday","birthday"),
 	  		],
-		],
+		},
 	}
 
 
@@ -129,7 +129,7 @@ def format_birthday(birthday):
 		return date_obj.strftime("%Y-%m-%d")
 	except ValueError:
 		logging.error(f"Invalid birthday format: {birthday}")
-		return None
+		return  ValueError(f"Invalid birthday format: {birthday}") from e
 
 
 def create_renter_record(instance_url, headers, renter_data):
@@ -222,7 +222,7 @@ def main():
 
 	# STEP 7: 申込情報の更新	
 	# データ取得
-	logging.info("app_data={app_data}")
+	logging.info(f"app_data={app_data}")
 	app_data = map_variables(appjson, APPLICATION_COLUMNS_MAPPING)
 	app_data["Contractor__c"]=contractor_id
 	app_data["Resident1__c"]=tenant_id
