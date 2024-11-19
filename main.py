@@ -84,6 +84,7 @@ def check_duplicate_record(instance_url, headers, renter_data):
 			f"AND Birthday__c = '{renter_data.get('Birthday__c')}'"
 		)
 	url = f"{instance_url}/services/data/v54.0/query?q={query}"
+	logging.info(f"URL: {url} & renter_data:{renter_data}")
 	response = requests.get(url, headers=headers)
 	response.raise_for_status()
 	records = response.json().get("records", [])
@@ -181,41 +182,23 @@ def main():
 		'Authorization': f'Bearer {access_token}',
 		'Content-Type': 'application/json',
 	}
-
+	print(sf_headers)
 	# 契約者重複チェックと重複しない場合に新規作成
-	duplicate_id = check_duplicate_record(instance_url, sf_headers, renter_data)
-	if duplicate_id: # 重複があった場合、既存のRenter__cレコードIDを一時変数に格納
-		contractor_id = duplicate_id
-	else:            # 重複がない場合、新しい Renter__c レコードを作成
-		logging.info(f"renter_header: {sf_headers}")
-		logging.info(f"renter_data: {renter_data}")
-		new_record = create_renter_record(instance_url, sf_headers, renter_data)
-		contractor_id = new_record.get("id")
+	 contractor_id = check_duplicate_record(instance_url, sf_headers, renter_data) or create_renter_record(instance_url, sf_headers, renter_data)
 	
 	# 入居者重複チェックと重複しない場合に新規作成
-	duplicate_id = check_duplicate_record(instance_url, sf_headers, tenant_data)
-	if duplicate_id:
-		tenant_id = duplicate_id
-	else:		# 重複がない場合、新しい Renter__c レコードを作成
-		logging.info(f"tenant_data: {sf_headers}")
-		logging.info(f"tenant_data: {tenant_data}")
-		new_record = create_renter_record(instance_url, sf_headers, tenant_data)
-		tenant_id = new_record.get("id")
-
+	tenant_id = check_duplicate_record(instance_url, sf_headers, tenant_data) or create_renter_record(instance_url, sf_headers, tenant_data)
 
 	# STEP 7: 申込情報の更新	
 	# データ取得
 	app_data = map_variables(appjson, APPLICATION_COLUMNS_MAPPING)
-	
+	app_data[Contractor__C]=contractor_id
+	app_data[Resident__C]=tenant_id
+
 
 	# Relationship の選択肢を変換
 	if "EmergencyContactRelationship__c" in app_data:
 		app_data["EmergencyContactRelationship__c"] = map_relationship(app_data["EmergencyContactRelationship__c"])
-
-	#契約者と入居者レコードIDを埋める
-		app_data[Contractor__C]=contractor_id
-		app_data[Resident__C]=tenant_id
-
 
 	# 申込オブジェクトの更新
 	app_url = f"{instance_url}/services/data/v54.0/sobjects/Application__c/{record_id}"
