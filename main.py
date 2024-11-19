@@ -193,8 +193,8 @@ def main():
 	# データ取得
 	logging.info("app_data={app_data}")
 	app_data = map_variables(appjson, APPLICATION_COLUMNS_MAPPING)
-	app_data[Contractor__c]=contractor_id
-	app_data[Resident__c]=tenant_id
+	app_data["Contractor__c"]=contractor_id
+	app_data["Resident__c"]=tenant_id
 
 
 	# Relationship の選択肢を変換
