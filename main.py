@@ -129,7 +129,7 @@ def format_birthday(birthday):
 		return date_obj.strftime("%Y-%m-%d")
 	except ValueError:
 		logging.error(f"Invalid birthday format: {birthday}")
-		return  ValueError(f"Invalid birthday format: {birthday}") from e
+		return None
 
 
 def create_renter_record(instance_url, headers, renter_data):
