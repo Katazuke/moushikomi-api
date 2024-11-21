@@ -13,27 +13,6 @@ SF_USERNAME = 'dev@a-max.jp.0705test'
 SF_PASSWORD = 'Fj3zyT4f'
 SF_TOKEN_URL = 'https://a-max--0705test.sandbox.my.salesforce.com/services/oauth2/token'
 
-#RENTER_COLUMNS_MAPPING = { 						# RenterType による契約者マッピング条件の辞書
-#	"個人": [
-#		("RenterType__c",None,None),
-#		("LastName__c", "applicant_name_kana", "last_name"),	
-#		("FirstName__c", "applicant_name_kana", "first_name"),	
-#		("Birthday__c", "applicant_birthday", "birthday"),
-#		],
-#	"法人": [
-#		("RenterType__c",None,None),
-#		("LastName__c", "corp_applicant_workplace", "text"),  	
-#		("CorporateNumber__c", "corp_info_corporate_number", "text"),  
-#		("Birthday__c", "corp_info_foundation_date", "date"),  
-#		],
-#	"入居者": [
-#		("RenterType__c",None,None),
-#		("LastName__c", "tenant1_name_kana", "last_name"),  	
-#		("FirstName__c", "tenant1_name_kana", "first_name"),  
-#		("Birthday__c", "tenant1_birthday","birthday"),  
-#		],
-#	}
-
 RENTER_COLUMNS_MAPPING = { 						# RenterType による契約者マッピング条件の辞書
 	"個人": {
 		"契約者":[
@@ -121,7 +100,7 @@ RENTER_COLUMNS_MAPPING = { 						# RenterType による契約者マッピング�
 			("Company__c","corp_tenant1_workplace","text"),
 			("CompanyKana__c","corp_tenant1_workplace","text_kana"),
 			("CompanyPhone__c","corp_tenant1_workplace_tel","phone_number"),
-			("CompanyAddress_PostalCode__c",""corp_tenant1_address"",""zip_code""),"
+			("CompanyAddress_PostalCode__c","corp_tenant1_address","zip_code"),
 			("CompanyAddress_State__c","corp_tenant1_address","state"),
 			("CompanyAddress_City__c","corp_tenant1_address","city"),
 			("CompanyAddress_Street__c","corp_tenant1_address","street"),
