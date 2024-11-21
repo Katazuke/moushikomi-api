@@ -181,9 +181,9 @@ def map_variables(data, columns):
 			value =  format_postal_code(value)
 
 		# 汎用変換を適用
-			logging.info(f"Before transformation: key={key}, value={value}")
-			value = transform_value(key, value)
-			logging.info(f"After transformation: key={key}, value={value}")
+		logging.info(f"Before transformation: key={key}, value={value}")
+		value = transform_value(key, value)
+		logging.info(f"After transformation: key={key}, value={value}")
 
 		# 値がすでに変数にあり、新しい値が None でない場合は追加
 		if key in variables and variables[key] and value is not None:
