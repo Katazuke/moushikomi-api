@@ -238,21 +238,6 @@ def create_renter_record(instance_url, headers, renter_data):
 		logging.error(f"Response content: {response.text}")
 		raise  # エラーを呼び出し元に伝える
 
-def map_relationship(value):
-	"""指定された関係性データをSalesforce選択肢に変換"""
-	relationship_mapping = {
-		"父母": "親",
-		"祖父母": "その他",
-		"子": "子",
-		"孫": "その他",
-		"兄弟姉妹": "兄弟姉妹",
-		"配偶者": "配偶者",
-		"その他": "その他"
-		}
-	# マッピングが存在しない場合はデフォルトで 'その他' を返す
-	return relationship_mapping.get(value, "その他")
-
-
 @app.route('/')
 def main():
 	# STEP 1: クエリパラメータからapplication_idとrecord_idを取得
@@ -318,11 +303,6 @@ def main():
 	app_data["Contractor__c"]=contractor_id
 	app_data["Resident1__c"]=tenant_id
 	logging.info(f"app_data={app_data}")
-
-
-	# Relationship の選択肢を変換
-	if "EmergencyContactRelationship__c" in app_data:
-		app_data["EmergencyContactRelationship__c"] = map_relationship(app_data["EmergencyContactRelationship__c"])
 
 	# 申込オブジェクトの更新
 	app_url = f"{instance_url}/services/data/v54.0/sobjects/Application__c/{record_id}"
