@@ -176,14 +176,14 @@ def check_duplicate_record(instance_url, headers, renter_data):
 	url = f"{instance_url}/services/data/v54.0/query?q={query}"
 	logging.info(f"URL: {url} & renter_data:{renter_data}")
 
-	 try:
+	try:
 		response = requests.get(url, headers=headers)
 		if response.status_code >= 400:
-			 logging.error(f"Salesforce Error: {response.json()}")
+			logging.error(f"Salesforce Error: {response.json()}")
 			response.raise_for_status()
 		records = response.json().get("records", [])
 		return records[0]["Id"] if records else None
-	 except requests.exceptions.RequestException as e:
+	except requests.exceptions.RequestException as e:
 		logging.error(f"HTTP Request failed: {e}")
 		raise
 
