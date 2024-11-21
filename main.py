@@ -123,22 +123,21 @@ def get_salesforce_token():
 	return response.json().get('access_token'), response.json().get('instance_url')
 
 def map_variables(data, columns):
-	"""汎用的なマッピング関数。既存の変数値がある場合は全角スペースで値を追加する。"""
+	"""汎用的なマッピング関数。既存の変数値がある場合は全角スペースで値を追加するが、None の値は追加しない。"""
 	variables = {}
 	for key, entry_name, field_name in columns:
 		if entry_name is None:
-		# entry_name が None の場合、既存の値を保持しつつ None を追加
-			if key in variables and variables[key] is not None:
-				variables[key] += "　None"
-			else:
+			# entry_name が None の場合、既存の値を保持しつつ None を追加しない
+			if key not in variables:
 				variables[key] = None
 		elif field_name is None:
-		# field_name が None の場合、data のエントリ全体を取得
+			# field_name が None の場合、data のエントリ全体を取得
 			value = data.get(entry_name)
-			if key in variables and variables[key]:
-				variables[key] += f"　{value}"
-			else:
-				variables[key] = value
+			if value is not None:  # 代入する値が None ではない場合のみ追加
+				if key in variables and variables[key]:
+					variables[key] += f"　{value}"
+				else:
+					variables[key] = value
 		else:
 			# entry_bodies 内の特定フィールドを取得
 			value = None
@@ -146,10 +145,11 @@ def map_variables(data, columns):
 				if entry_body.get("name") == entry_name:
 					value = entry_body.get(field_name, "")
 					break
-			if key in variables and variables[key]:
-				variables[key] += f"　{value}"			
-			else:
-				variables[key] = value
+			if value is not None:  # 代入する値が None ではない場合のみ追加
+				if key in variables and variables[key]:
+					variables[key] += f"　{value}"
+				else:
+					variables[key] = value
 	return variables
 
 def check_duplicate_record(instance_url, headers, renter_data):
