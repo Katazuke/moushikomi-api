@@ -104,7 +104,7 @@ RENTER_COLUMNS_MAPPING = { 						# RenterType による契約者マッピング�
 			("CompanyContactTel__c","corp_applicant_contact_tel","phone_number"),
 			("CompanyContactFax__c","corp_applicant_contact_office_fax","phone_number"),
 			("CompanyContactMail__c","corp_applicant_contact_mail","text"),
-			("Note__c","corp_applicant_contact_department_name","text"),"  
+			("Note__c","corp_applicant_contact_department_name","text"), 
 			],
 		"入居者1": [
 			("RenterType__c",None,None),
@@ -122,10 +122,10 @@ RENTER_COLUMNS_MAPPING = { 						# RenterType による契約者マッピング�
 			("CompanyKana__c","corp_tenant1_workplace","text_kana"),
 			("CompanyPhone__c","corp_tenant1_workplace_tel","phone_number"),
 			("CompanyAddress_PostalCode__c",""corp_tenant1_address"",""zip_code""),"
-			("CompanyAddress__c","corp_tenant1_address","state"),
-			("CompanyAddress__c","corp_tenant1_address","city"),
-			("CompanyAddress__c","corp_tenant1_address","street"),
-			("CompanyAddress_Building__c__c","corp_tenant1_address","other"),
+			("CompanyAddress_State__c","corp_tenant1_address","state"),
+			("CompanyAddress_City__c","corp_tenant1_address","city"),
+			("CompanyAddress_Street__c","corp_tenant1_address","street"),
+			("CompanyAddress_Building__c","corp_tenant1_address","other"),
 			("AnnualIncome__c","corp_tenant1_workplace_tax_included_annual_income","number"),
 	  		],
 		},
