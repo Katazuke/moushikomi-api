@@ -109,6 +109,21 @@ APPLICATION_COLUMNS_MAPPING = [
 		("EmergencyContactRelationship__c", "emergency_relationship", "choice"),
 		]
 
+FIELD_TRANSFORMATIONS = {
+	"Sex__c": {
+		"男": "男性",
+		"女": "女性",
+	},
+	"EmergencyContactRelationship__c": {
+		"父母": "親",
+		"祖父母": "その他",
+		"子": "子",
+		"孫": "その他",
+		"兄弟姉妹": "兄弟姉妹",
+		"配偶者": "配偶者",
+		"その他": "その他",
+		}
+	}
 def get_salesforce_token():
 	"""Salesforceのアクセストークンを取得"""
 	payload = {
@@ -133,6 +148,15 @@ def format_postal_code(postal_code):
 		logging.error(f"Invalid postal code format: {postal_code}")
 		return None  # 不正な形式の場合は None を返す
 
+def transform_value(key, value):
+	"""フィールドごとの変換を適用する汎用関数"""
+	if value is None:
+		return None
+	if key in FIELD_TRANSFORMATIONS:
+		# 該当する変換マッピングがあれば適用
+		return FIELD_TRANSFORMATIONS[key].get(value, value)
+	return value  # 該当しない場合はそのまま返す
+
 # map_variables 関数での利用例
 def map_variables(data, columns):
 	"""汎用的なマッピング関数。既存の変数値がある場合は全角スペースで値を追加する。"""
@@ -154,7 +178,10 @@ def map_variables(data, columns):
 
 		# 特定のキーに対して郵便番号のフォーマットを適用
 		if key.endswith("PostalCode__s") and value:
-			value = format_postal_code(value)
+			value =  format_postal_code(value)
+
+		# 汎用変換を適用
+			value = transform_value(key, value)
 
 		# 値がすでに変数にあり、新しい値が None でない場合は追加
 		if key in variables and variables[key] and value is not None:
