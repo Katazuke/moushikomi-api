@@ -114,6 +114,10 @@ FIELD_TRANSFORMATIONS = {
 		"男": "男性",
 		"女": "女性",
 	},
+	"EmergencyContactSex__c":{
+		"男": "男性",
+		"女": "女性",
+	},
 	"EmergencyContactRelationship__c": {
 		"父母": "親",
 		"祖父母": "その他",
@@ -137,16 +141,36 @@ def get_salesforce_token():
 	response.raise_for_status()
 	return response.json().get('access_token'), response.json().get('instance_url')
 
-def format_postal_code(postal_code):
-	"""郵便番号をハイフンなしの形式 (1234567) に変換"""
-	if postal_code is None:
+def apply_format(key, value):
+	"""汎用的なフォーマット適用関数"""
+	if value is None:
 		return None
-	formatted_code = postal_code.replace("-", "").strip()  # ハイフンを削除して余分な空白を除去
-	if len(formatted_code) == 7 and formatted_code.isdigit():
-		return formatted_code
-	else:
-		logging.error(f"Invalid postal code format: {postal_code}")
-		return None  # 不正な形式の場合は None を返す
+
+	# フォーマットルールを定義
+	format_rules = {
+		"postal_code": lambda x: x.replace("-", "").strip() if len(x.replace("-", "").strip()) == 7 and x.replace("-", "").isdigit()else None,
+		"birthday": lambda x: datetime.fromisoformat(x.split(".")[0]).strftime("%Y-%m-%d") if x else None,
+		# 他のフォーマットルールを追加可能
+	}
+
+	# キーごとのルールマッピング
+	key_format_mapping = {
+		"PostCode__c": "postal_code",
+		"CompanyAddress_PostalCode__c": "postal_code",
+		"Birthday__c": "birthday",
+	}
+
+	# 適切なフォーマットルールを適用
+	rule = key_format_mapping.get(key)
+	if rule and rule in format_rules:
+		try:
+			return format_rules[rule](value)
+		except Exception as e:
+			logging.error(f"Formatting error for key={key}, value={value}: {e}")
+			return None
+
+	# 該当なしの場合はそのまま返す
+	return value
 
 def transform_value(key, value):
 	"""フィールドごとの変換を適用する汎用関数"""
@@ -175,13 +199,11 @@ def map_variables(data, columns):
 				if entry_body.get("name") == entry_name:
 					value = entry_body.get(field_name, "")
 					break
-
-		# 特定のキーに対して郵便番号のフォーマットを適用
-		if key.endswith("PostalCode__s") and value:
-			value =  format_postal_code(value)
+		# フォーマット適用
+		logging.info(f"Before formatting: key={key}, value={value}")
+		value = apply_format(key, value)
 
 		# 汎用変換を適用
-		logging.info(f"Before transformation: key={key}, value={value}")
 		value = transform_value(key, value)
 		logging.info(f"After transformation: key={key}, value={value}")
 
