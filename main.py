@@ -114,10 +114,6 @@ FIELD_TRANSFORMATIONS = {
 		"男": "男性",
 		"女": "女性",
 	},
-	"EmergencyContactSex__c":{
-		"男": "男性",
-		"女": "女性",
-	},
 	"EmergencyContactRelationship__c": {
 		"父母": "親",
 		"祖父母": "その他",
