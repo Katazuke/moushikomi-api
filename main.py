@@ -16,19 +16,19 @@ SF_TOKEN_URL = 'https://a-max--0705test.sandbox.my.salesforce.com/services/oauth
 #RENTER_COLUMNS_MAPPING = { 						# RenterType による契約者マッピング条件の辞書
 #	"個人": [
 #		("RenterType__c",None,None),
-#		("LastName__c", "applicant_name_kana", "last_name"),	# 2階層目
+#		("LastName__c", "applicant_name_kana", "last_name"),	
 #		("FirstName__c", "applicant_name_kana", "first_name"),	
 #		("Birthday__c", "applicant_birthday", "birthday"),
 #		],
 #	"法人": [
 #		("RenterType__c",None,None),
-#		("LastName__c", "corp_applicant_workplace", "text"),  	# 2階層目
+#		("LastName__c", "corp_applicant_workplace", "text"),  	
 #		("CorporateNumber__c", "corp_info_corporate_number", "text"),  
 #		("Birthday__c", "corp_info_foundation_date", "date"),  
 #		],
 #	"入居者": [
 #		("RenterType__c",None,None),
-#		("LastName__c", "tenant1_name_kana", "last_name"),  	# 2階層目
+#		("LastName__c", "tenant1_name_kana", "last_name"),  	
 #		("FirstName__c", "tenant1_name_kana", "first_name"),  
 #		("Birthday__c", "tenant1_birthday","birthday"),  
 #		],
@@ -40,22 +40,56 @@ RENTER_COLUMNS_MAPPING = { 						# RenterType による契約者マッピング�
 			("RenterType__c",None,None),
 			("LastName__c", "applicant_name_kana", "last_name"),	# 2階層目
 			("FirstName__c", "applicant_name_kana", "first_name"),	
+			("LastNameKana__c","applicant_name_kana","last_name_kana"),
+			("FirstNameKana__c","applicant_name_kana","first_name_kana"),
+			("Sex__c","applicant_sex","choice"),
+			("Nationality__c","applicant_nationality","text"),
 			("Birthday__c", "applicant_birthday", "birthday"),
+			("MobilePhoneNumber__c","applicant_mobile_tel","phone_number"),
+			("PhoneNumber__c","applicant_home_tel","phone_number"),
+			("Email__c","applicant_mail","text"),
+			("PostCode__c","applicant_address","zip_code"),
+			("Prefecture__c","applicant_address","state"),
+			("Address1__c","applicant_address","city"),
+			("Address2__c","applicant_address","street"),
+			("Address2__c","applicant_address","other"),
+			("Company__c","applicant_workplace","text"),
+			("CompanyKana__c","applicant_workplace","text_kana"),
+			("CompanyPhone__c","applicant_workplace_tel","phone_number"),
+			("CompanyZipCode__c","applicant_workplace_address","zip_code"),
+			("CompanyAddress__c","applicant_workplace_address","state"),
+			("CompanyAddress__c","applicant_workplace_address","city"),
+			("CompanyAddress__c","applicant_workplace_address","street"),
+			("CompanyAddress_Building__c","applicant_workplace_address","other"),
+			("CompanyCapital__c","applicant_workplace_capital","number"),
+			("AnnualIncome__c","applicant_workplace_tax_included_annual_income","number"),
 			],
-		"入居者":[("RenterType__c",None,None),
+		"入居者1":[
+			("RenterType__c",None,None),
 			("LastName__c", "tenant1_name_kana", "last_name"),  	# 2階層目
 			("FirstName__c", "tenant1_name_kana", "first_name"),  
 			("Birthday__c", "tenant1_birthday","birthday"), 
+			("LastNameKana__c","tenant1_name_kana","last_name_kana"),
+			("FirstNameKana__c","tenant1_name_kana","first_name_kana"),
+			("Sex__c","tenant1_sex","choice"),
+			("MobilePhoneNumber__c","tenant1_mobile_tel","phone_number"),
+			("PhoneNumber__c","tenant1_home_tel","phone_number"),
+			("Email__c","tenant1_mail","text"),
+			("Company__c","tenant1_workplace","text"),
+			("CompanyKana__c","tenant1_workplace","text_kana"),
+			("AnnualIncome__c","tenant1_workplace_tax_included_annual_income","number"),
 			],
+		
 		},
 	"法人": {
 		"契約者":[
 			("RenterType__c",None,None),
-			("LastName__c", "corp_applicant_workplace", "text"),  	# 2階層目
+			("LastName__c", "corp_applicant_workplace", "text"), 
+			("LastNameKana__c","corp_applicant_workplace","text_kana"),
 			("CorporateNumber__c", "corp_info_corporate_number", "text"),  
 			("Birthday__c", "corp_info_foundation_date", "date"),  
 			],
-		"入居者": [
+		"入居者1": [
 			("RenterType__c",None,None),
 			("LastName__c", "tenant1_name_kana", "last_name"),  	# 2階層目
 			("FirstName__c", "tenant1_name_kana", "first_name"),  
@@ -88,20 +122,34 @@ def get_salesforce_token():
 	response.raise_for_status()
 	return response.json().get('access_token'), response.json().get('instance_url')
 
-
 def map_variables(data, columns):
-	"""汎用的なマッピング関数"""
+	"""汎用的なマッピング関数。既存の変数値がある場合は全角スペースで値を追加する。"""
 	variables = {}
 	for key, entry_name, field_name in columns:
 		if entry_name is None:
-			variables[key] = None
+		# entry_name が None の場合、既存の値を保持しつつ None を追加
+			if key in variables and variables[key] is not None:
+				variables[key] += "　None"
+			else:
+				variables[key] = None
 		elif field_name is None:
-			variables[key] = data.get(entry_name)
+		# field_name が None の場合、data のエントリ全体を取得
+			value = data.get(entry_name)
+			if key in variables and variables[key]:
+				variables[key] += f"　{value}"
+			else:
+				variables[key] = value
 		else:
+			# entry_bodies 内の特定フィールドを取得
+			value = None
 			for entry_body in data.get("entry_bodies", []):
 				if entry_body.get("name") == entry_name:
-					variables[key] = entry_body.get(field_name, "")
+					value = entry_body.get(field_name, "")
 					break
+			if key in variables and variables[key]:
+				variables[key] += f"　{value}"			
+			else:
+				variables[key] = value
 	return variables
 
 def check_duplicate_record(instance_url, headers, renter_data):
@@ -202,7 +250,7 @@ def main():
 	renter_data["Birthday__c"] = format_birthday(renter_data["Birthday__c"])
 
 	# 賃借人オブジェクトから個人/法人に分けて入居者のマッピング表を選択
-	tenant_data =  map_variables(appjson, RENTER_COLUMNS_MAPPING[renter_type]["入居者"])
+	tenant_data =  map_variables(appjson, RENTER_COLUMNS_MAPPING[renter_type]["入居者1"])
 	tenant_data["RenterType__c"] = "個人"
 	tenant_data["Birthday__c"] = format_birthday(tenant_data["Birthday__c"])
 
@@ -250,3 +298,5 @@ def main():
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8080)
+
+
