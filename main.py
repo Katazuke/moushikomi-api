@@ -122,34 +122,45 @@ def get_salesforce_token():
 	response.raise_for_status()
 	return response.json().get('access_token'), response.json().get('instance_url')
 
+def format_postal_code(postal_code):
+	"""郵便番号をハイフンなしの形式 (1234567) に変換"""
+	if postal_code is None:
+		return None
+	formatted_code = postal_code.replace("-", "").strip()  # ハイフンを削除して余分な空白を除去
+	if len(formatted_code) == 7 and formatted_code.isdigit():
+		return formatted_code
+	else:
+		logging.error(f"Invalid postal code format: {postal_code}")
+		return None  # 不正な形式の場合は None を返す
+
+# map_variables 関数での利用例
 def map_variables(data, columns):
-	"""汎用的なマッピング関数。既存の変数値がある場合は全角スペースで値を追加するが、None の値は追加しない。"""
+	"""汎用的なマッピング関数。既存の変数値がある場合は全角スペースで値を追加する。"""
 	variables = {}
 	for key, entry_name, field_name in columns:
+		value = None
 		if entry_name is None:
-			# entry_name が None の場合、既存の値を保持しつつ None を追加しない
-			if key not in variables:
-				variables[key] = None
-		elif field_name is None:
-			# field_name が None の場合、data のエントリ全体を取得
-			value = data.get(entry_name)
-			if value is not None:  # 代入する値が None ではない場合のみ追加
-				if key in variables and variables[key]:
-					variables[key] += f"　{value}"
-				else:
-					variables[key] = value
-		else:
-			# entry_bodies 内の特定フィールドを取得
+			# entry_name が None の場合
 			value = None
+		elif field_name is None:
+			# field_name が None の場合
+			value = data.get(entry_name)
+		else:
+		# entry_bodies 内の特定フィールドを取得
 			for entry_body in data.get("entry_bodies", []):
 				if entry_body.get("name") == entry_name:
 					value = entry_body.get(field_name, "")
 					break
-			if value is not None:  # 代入する値が None ではない場合のみ追加
-				if key in variables and variables[key]:
-					variables[key] += f"　{value}"
-				else:
-					variables[key] = value
+
+		# 特定のキーに対して郵便番号のフォーマットを適用
+		if key.endswith("PostalCode__s") and value:
+			value = format_postal_code(value)
+
+		# 値がすでに変数にあり、新しい値が None でない場合は追加
+		if key in variables and variables[key] and value is not None:
+			variables[key] += f"　{value}"  # 全角スペースで結合
+		elif value is not None:
+			variables[key] = value
 	return variables
 
 def check_duplicate_record(instance_url, headers, renter_data):
@@ -164,11 +175,17 @@ def check_duplicate_record(instance_url, headers, renter_data):
 		)
 	url = f"{instance_url}/services/data/v54.0/query?q={query}"
 	logging.info(f"URL: {url} & renter_data:{renter_data}")
-	response = requests.get(url, headers=headers)
-	response.raise_for_status()
-	records = response.json().get("records", [])
-	return records[0]["Id"] if records else None
 
+	 try:
+		response = requests.get(url, headers=headers)
+		if response.status_code >= 400:
+			 logging.error(f"Salesforce Error: {response.json()}")
+			response.raise_for_status()
+		records = response.json().get("records", [])
+		return records[0]["Id"] if records else None
+	 except requests.exceptions.RequestException as e:
+		logging.error(f"HTTP Request failed: {e}")
+		raise
 
 def format_birthday(birthday):
 	"""Birthday__c を YYYY-MM-DD の形式に変換"""
