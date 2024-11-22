@@ -115,6 +115,7 @@ RENTER_COLUMNS_MAPPING = { 						# RenterType による契約者マッピング�
 APPLICATION_COLUMNS_MAPPING = [
 		("Contractor__c",None,None),
 		("Resident1__c",None,None),
+		("IndividualCorporation__c",None,None)
 		("EmergencyContact__c", "emergency_name_kana", "last_name"),
 		("EmergencyContactKana__c", "emergency_name_kana", "last_name_kana"),
 		("EmergencyContactSex__c", "emergency_sex", "choice"),
@@ -424,6 +425,7 @@ def main():
 	app_data = map_variables(appjson, APPLICATION_COLUMNS_MAPPING)
 	app_data["Contractor__c"]=contractor_id
 	app_data["Resident1__c"]=tenant_id
+	app_data["IndividualCorporation__c"]=renter_type
 	logging.info(f"app_data={app_data}")
 
 	# 申込オブジェクトの更新
