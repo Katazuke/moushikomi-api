@@ -157,7 +157,7 @@ FIELD_TRANSFORMATIONS = {
 		"男": "男性",
 		"女": "女性",
 		},
-	"ResidentRelationship1___c": {
+	"ResidentRelationship1__c": {
 		"父母": "親",
 		"祖父母": "その他",
 		"子": "子",
@@ -166,7 +166,7 @@ FIELD_TRANSFORMATIONS = {
 		"配偶者": "配偶者",
 		"その他": "その他",
 		},
-	"ResidentRelationship2___c": {
+	"ResidentRelationship2__c": {
 		"父母": "親",
 		"祖父母": "その他",
 		"子": "子",
@@ -175,7 +175,7 @@ FIELD_TRANSFORMATIONS = {
 		"配偶者": "配偶者",
 		"その他": "その他",
 		},
-	"ResidentRelationship3___c": {
+	"ResidentRelationship3__c": {
 		"父母": "親",
 		"祖父母": "その他",
 		"子": "子",
@@ -184,7 +184,7 @@ FIELD_TRANSFORMATIONS = {
 		"配偶者": "配偶者",
 		"その他": "その他",
 		},
-	"ResidentRelationship4___c": {
+	"ResidentRelationship4__c": {
 		"父母": "親",
 		"祖父母": "その他",
 		"子": "子",
