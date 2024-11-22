@@ -226,7 +226,7 @@ def apply_format(key, value):
 	# フォーマットルールを定義
 	format_rules = {
 		"postal_code": lambda x: x.replace("-", "").strip() if len(x.replace("-", "").strip()) == 7 and x.replace("-", "").isdigit()else None,
-		"birthday": lambda x: datetime.fromisoformat(x.split(".")[0]).strftime("%Y-%m-%d") if x else None,
+		"date": lambda x: datetime.fromisoformat(x.split(".")[0]).strftime("%Y-%m-%d") if x else None,
 		# 他のフォーマットルールを追加可能
 	}
 
@@ -234,8 +234,11 @@ def apply_format(key, value):
 	key_format_mapping = {
 		"PostCode__c": "postal_code",
 		"CompanyAddress_PostalCode__c": "postal_code",
-		"Birthday__c": "birthday",
+		"Birthday__c": "date",
 		"PostCode__c": "postal_code",
+		"ApplicationDate__c": "date",
+		"ExternalUpdatedDate__c": "data",
+
 	}
 
 	# 適切なフォーマットルールを適用
