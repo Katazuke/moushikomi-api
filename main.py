@@ -187,6 +187,7 @@ def transform_value(key, value):
 		return None
 	if key in FIELD_TRANSFORMATIONS:
 		# 該当する変換マッピングがあれば適用
+		logging.info(f"Before formatting: key={key}, value={value}")
 		return FIELD_TRANSFORMATIONS[key].get(value, value)
 	return value  # 該当しない場合はそのまま返す
 
@@ -209,12 +210,10 @@ def map_variables(data, columns):
 					value = entry_body.get(field_name, "")
 					break
 		# フォーマット適用
-		logging.info(f"Before formatting: key={key}, value={value}")
 		value = apply_format(key, value)
 
-		# 汎用変換を適用
+		# 選択肢変換を適用
 		value = transform_value(key, value)
-		logging.info(f"After transformation: key={key}, value={value}")
 
 		# 値がすでに変数にあり、新しい値が None でない場合は追加
 		if key in variables and variables[key] and value is not None:
