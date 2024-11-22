@@ -115,7 +115,7 @@ RENTER_COLUMNS_MAPPING = { 						# RenterType による契約者マッピング�
 APPLICATION_COLUMNS_MAPPING = [
 		("Contractor__c",None,None),
 		("Resident1__c",None,None),
-		("IndividualCorporation__c",None,None)
+		("IndividualCorporation__c",None,None),
 		("EmergencyContact__c", "emergency_name_kana", "last_name"),
 		("EmergencyContactKana__c", "emergency_name_kana", "last_name_kana"),
 		("EmergencyContactSex__c", "emergency_sex", "choice"),
