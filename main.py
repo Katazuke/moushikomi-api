@@ -141,7 +141,7 @@ APPLICATION_COLUMNS_MAPPING = [
 		("ResidentRelationship3__c","tenant3_relationship","choice"),
 		("ResidentRelationship4__c","tenant4_relationship","choice"),
 		("ResidentRelationship5__c","tenant5_relationship","choice"),
-		("EmergencyContact__c","emergency_name_kana","first_name"),,
+		("EmergencyContact__c","emergency_name_kana","first_name"),
 		("EmergencyContactKana__c","emergency_name_kana","first_name_kana"),
 		("EmergencyContactTel__c","emergency_mobile_tel","phone_number"),
 		("EmergencyContactTel__c","emergency_home_tel","phone_number"),
@@ -290,6 +290,19 @@ def map_variables(data, columns):
 			variables[key] = value
 	return variables
 
+def update_renter_record(instance_url, headers, record_id, renter_data):
+	"""既存の Renter__c レコードを更新"""
+	url = f"{instance_url}/services/data/v54.0/sobjects/Renter__c/{record_id}"
+	try:
+		response = requests.patch(url, headers=headers, json=renter_data)
+		response.raise_for_status()  # エラーチェック
+		logging.info(f"Record updated successfully: {record_id}")
+		return True
+	except requests.exceptions.HTTPError as e:
+		logging.error(f"HTTP Error: {e}")
+		logging.error(f"Response content: {response.text}")
+		return False
+
 def check_duplicate_record(instance_url, headers, renter_data):
 	"""賃借人オブジェクト内の重複チェック"""
 	if renter_data["RenterType__c"] == "法人":
@@ -310,6 +323,16 @@ def check_duplicate_record(instance_url, headers, renter_data):
 			response.raise_for_status()
 		records = response.json().get("records", [])
 		return records[0]["Id"] if records else None
+		#if records
+		#	record_id = records[0]["Id"]
+		#	logging.info(f"Duplicate record found: {record_id}, updating...")
+		#	update_success = update_renter_record(instance_url, headers, record_id, renter_data)
+		#	if update_success:
+		#		return record_id  # 更新が成功した場合はレコード ID を返す
+		#	else:
+		#		logging.error("Failed to update existing record.")
+		#		return None
+		#return None  # 重複がない場合は None を返す
 	except requests.exceptions.RequestException as e:
 		logging.error(f"HTTP Request failed: {e}")
 		raise
