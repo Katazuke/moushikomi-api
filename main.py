@@ -359,7 +359,7 @@ def create_renter_record(instance_url, headers, renter_data):
 		response.raise_for_status()  # エラーチェック
 		created_record = response.json()  # 作成されたレコードのレスポンスを取得
 		logging.info(f"Record created successfully: {created_record}")
-		return created_record  # 作成されたレコードの詳細を返す
+		return created_record.get('id')  # 作成されたレコードの詳細を返す
 	except requests.exceptions.HTTPError as e:
 		logging.error(f"HTTP Error: {e}")
 		logging.error(f"Response content: {response.text}")
