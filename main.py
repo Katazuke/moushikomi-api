@@ -323,7 +323,7 @@ def check_duplicate_record(instance_url, headers, renter_data):
 			response.raise_for_status()
 		records = response.json().get("records", [])
 		return records[0]["Id"] if records else None
-		if records
+		if records:
 			record_id = records[0]["Id"]
 			logging.info(f"Duplicate record found: {record_id}, updating...")
 			update_success = update_renter_record(instance_url, headers, record_id, renter_data)
