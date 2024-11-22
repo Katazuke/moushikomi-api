@@ -135,7 +135,7 @@ APPLICATION_COLUMNS_MAPPING = [
 		("InstrumentUse__c","is_instrument","choice"),
 		("InstrumentType__c","instrument_type","text"),
 		("MovingReason__c","applicant_moving_reason","choice"),
-		("TalentDetailList__c","telnet_detail","choice"),
+		("Nationality__c","telnet_detail","choice"),
 		("ResidentRelationship1___c","tenant1_relationship","choice"),
 		("ResidentRelationship２__c","tenant2_relationship","choice"),
 		("ResidentRelationship3__c","tenant3_relationship","choice"),
@@ -399,12 +399,10 @@ def main():
 	renter_type = "法人" if appjson.get("corp") else "個人"
 	renter_data =  map_variables(appjson, RENTER_COLUMNS_MAPPING[renter_type]["契約者"])
 	renter_data["RenterType__c"] = renter_type
-	renter_data["Birthday__c"] = format_birthday(renter_data["Birthday__c"])
 
 	# 賃借人オブジェクトから個人/法人に分けて入居者のマッピング表を選択
 	tenant_data =  map_variables(appjson, RENTER_COLUMNS_MAPPING[renter_type]["入居者1"])
 	tenant_data["RenterType__c"] = "個人"
-	tenant_data["Birthday__c"] = format_birthday(tenant_data["Birthday__c"])
 
 	# STEP 4: 契約者情報の重複チェック
 	#アクセストークンを取得してSFAPIのヘッダを構築
@@ -416,6 +414,7 @@ def main():
 	print(sf_headers)
 	# 契約者重複チェックと重複しない場合に新規作成
 	contractor_id = check_duplicate_record(instance_url, sf_headers, renter_data) or create_renter_record(instance_url, sf_headers, renter_data)
+
 	
 	# 入居者重複チェックと重複しない場合に新規作成
 	tenant_id = check_duplicate_record(instance_url, sf_headers, tenant_data) or create_renter_record(instance_url, sf_headers, tenant_data)
