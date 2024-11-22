@@ -145,7 +145,7 @@ APPLICATION_COLUMNS_MAPPING = [
 		("EmergencyContactKana__c","emergency_name_kana","first_name_kana"),
 		("EmergencyContactTel__c","emergency_mobile_tel","phone_number"),
 		("EmergencyContactTel__c","emergency_home_tel","phone_number"),
-		("EmergencyContacAddress_PostalCode__c","emergency_address","zip_code"),
+		("EmergencyContactAddress_PostalCode__c","emergency_address","zip_code"),
 		("EmergencyContactAddress_State__c","emergency_address","state"),
 		("EmergencyContactAddress_City__c","emergency_address","city"),
 		("EmergencyContactAddress_Street__c","emergency_address","street"),
