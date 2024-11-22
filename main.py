@@ -145,11 +145,11 @@ APPLICATION_COLUMNS_MAPPING = [
 		("EmergencyContactKana__c","emergency_name_kana","first_name_kana"),
 		("EmergencyContactTel__c","emergency_mobile_tel","phone_number"),
 		("EmergencyContactTel__c","emergency_home_tel","phone_number"),
-		("EmergencyContactPostCode__c","emergency_address","zip_code"),
-		("EmergencyContactAddress__c","emergency_address","state"),
-		("EmergencyContactAddress__c","emergency_address","city"),
-		("EmergencyContactAddress__c","emergency_address","street"),
-		("EmergencyContactAddressBuilding__c","emergency_address","other"),
+		("EmergencyContacAddress_PostCode__c","emergency_address","zip_code"),
+		("EmergencyContactAddress_State__c","emergency_address","state"),
+		("EmergencyContactAddress_City__c","emergency_address","city"),
+		("EmergencyContactAddress_Street__c","emergency_address","street"),
+		("EmergencyContactAddress_Building__c","emergency_address","other"),
 		]
 
 FIELD_TRANSFORMATIONS = {
@@ -323,16 +323,16 @@ def check_duplicate_record(instance_url, headers, renter_data):
 			response.raise_for_status()
 		records = response.json().get("records", [])
 		return records[0]["Id"] if records else None
-		#if records
-		#	record_id = records[0]["Id"]
-		#	logging.info(f"Duplicate record found: {record_id}, updating...")
-		#	update_success = update_renter_record(instance_url, headers, record_id, renter_data)
-		#	if update_success:
-		#		return record_id  # 更新が成功した場合はレコード ID を返す
-		#	else:
-		#		logging.error("Failed to update existing record.")
-		#		return None
-		#return None  # 重複がない場合は None を返す
+		if records
+			record_id = records[0]["Id"]
+			logging.info(f"Duplicate record found: {record_id}, updating...")
+			update_success = update_renter_record(instance_url, headers, record_id, renter_data)
+			if update_success:
+				return record_id  # 更新が成功した場合はレコード ID を返す
+			else:
+				logging.error("Failed to update existing record.")
+				return None
+		return None  # 重複がない場合は None を返す
 	except requests.exceptions.RequestException as e:
 		logging.error(f"HTTP Request failed: {e}")
 		raise
