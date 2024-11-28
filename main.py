@@ -58,6 +58,21 @@ RENTER_COLUMNS_MAPPING = { 						# RenterType による契約者マッピング�
 			("CompanyKana__c","tenant1_workplace","text_kana"),
 			("AnnualIncome__c","tenant1_workplace_tax_included_annual_income","number"),
 			],
+		"入居者2":[
+			("RenterType__c",None,None),
+			("LastName__c", "tenant2_name_kana", "last_name"),  	# 2階層目
+			("FirstName__c", "tenant2_name_kana", "first_name"),  
+			("Birthday__c", "tenant2_birthday","birthday"), 
+			("LastNameKana__c","tenant2_name_kana","last_name_kana"),
+			("FirstNameKana__c","tenant2_name_kana","first_name_kana"),
+			("Sex__c","tenant2_sex","choice"),
+			("MobilePhoneNumber__c","tenant2_mobile_tel","phone_number"),
+			("PhoneNumber__c","tenant2_home_tel","phone_number"),
+			("Email__c","tenant2_mail","text"),
+			("Company__c","tenant2_workplace","text"),
+			("CompanyKana__c","tenant2_workplace","text_kana"),
+			("AnnualIncome__c","tenant2_workplace_tax_included_annual_income","number"),
+			],
 		"入居者3":[
 			("RenterType__c",None,None),
 			("LastName__c", "tenant3_name_kana", "last_name"),  	# 3階層目
