@@ -341,6 +341,7 @@ def apply_format(key, value):
 	format_rules = {
 		"postal_code": lambda x: x.replace("-", "").strip() if len(x.replace("-", "").strip()) == 7 and x.replace("-", "").isdigit()else None,
 		"date": lambda x: datetime.fromisoformat(x.split(".")[0]).strftime("%Y-%m-%d") if x else None,
+		"email": lambda x: x if "@" in x else "error@example.com",  # メールアドレスバリデーション
 		# 他のフォーマットルールを追加可能
 	}
 
@@ -352,7 +353,8 @@ def apply_format(key, value):
 		"PostCode__c": "postal_code",
 		"ApplicationDate__c": "date",
 		"ExternalUpdatedDate__c": "data",
-
+		"Email__c": "email",  # メールアドレスフォーマット
+		"CompanyContactMail__c": "email",  # メールアドレスフォーマット
 	}
 
 	# 適切なフォーマットルールを適用
