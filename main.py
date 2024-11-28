@@ -477,8 +477,7 @@ def get_matching_plan_id(plan_code, instance_url, headers):
 		
 		logging.info(f"No matching plan found. Creating a new plan for code: {plan_code}")
 		new_plan_data = {
-			"Name": plan_name,
-			"ExternalId": "plan_code"
+			"ExternalId__c": "plan_code"
 			}
 			create_url = f"{instance_url}/services/data/v54.0/sobjects/GuaranteePlan__c"
 			create_response = requests.post(create_url, headers=headers, json=new_plan_data)
