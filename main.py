@@ -451,8 +451,8 @@ def get_matching_plan_id(plan_code, instance_url, headers):
 	# 保証プラン辞書（Salesforce側に事前登録されているプラン名とIDを取得）
 	existing_plans = {
 		"elu": "GPL-00000000",
-		"8": "GPL-00000001",
-		"8899": "GPL-00000002",
+		"12621": "GPL-00000001",
+		"19932": "GPL-00000002",
 		"1693": "GPL-00000003"
 		}
 
