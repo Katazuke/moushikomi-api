@@ -370,6 +370,28 @@ def check_duplicate_record(instance_url, headers, renter_data):
 		logging.error(f"HTTP Request failed: {e}")
 		raise
 
+def process_tenant_data(appjson, renter_type, tenant_key, instance_url, sf_headers, app_data, resident_key):
+	"""
+	入居者データを処理し、必要な場合に重複チェックやレコード作成を行い、app_data に反映する。
+	"""
+	# 入居者データをマッピング
+	tenant_data = map_variables(appjson, RENTER_COLUMNS_MAPPING[renter_type][tenant_key])
+	tenant_data["RenterType__c"] = "個人"
+
+	# LastName__c が None の場合は処理をスキップ
+	if not tenant_data.get("LastName__c"):
+		logging.info(f"Skipping {tenant_key} due to missing LastName__c")
+		return
+
+	# 重複チェックとレコード作成
+	tenant_id = check_duplicate_record(instance_url, sf_headers, tenant_data) or create_renter_record(instance_url, sf_headers, tenant_data)
+
+	# app_data に反映
+	app_data[resident_key] = tenant_id
+	logging.info(f"{resident_key} processed with ID: {tenant_id}")
+
+
+
 def format_birthday(birthday):
 	"""Birthday__c を YYYY-MM-DD の形式に変換"""
 	try: # ISO 8601形式をパースして YYYY-MM-DD形式にフォーマット
@@ -440,7 +462,6 @@ def main():
 	tenant2_data["RenterType__c"] = "個人"
 
 
-
 	# STEP 4: 契約者情報の重複チェック
 	#アクセストークンを取得してSFAPIのヘッダを構築
 	access_token, instance_url = get_salesforce_token()
@@ -461,10 +482,13 @@ def main():
 	# データ取得
 	app_data = map_variables(appjson, APPLICATION_COLUMNS_MAPPING)
 	app_data["Contractor__c"]=contractor_id
-	app_data["Resident1__c"]=tenant_id
-	app_data["Resident2__c"]=tenant2_id
 	app_data["IndividualCorporation__c"]=renter_type
 	logging.info(f"app_data={app_data}")
+
+	for i in range(1, 6):  # 入居者 1〜5 をループ処理
+		tenant_key = f"入居者{i}"
+		resident_key = f"Resident{i}__c"
+		process_tenant_data(appjson, renter_type, tenant_key, instance_url, sf_headers, app_data, resident_key)	
 
 	# 申込オブジェクトの更新
 	app_url = f"{instance_url}/services/data/v54.0/sobjects/Application__c/{record_id}"
