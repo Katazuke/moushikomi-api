@@ -459,9 +459,9 @@ def get_matching_plan_id(plan_code, instance_url, headers):
 	plan_name = existing_plans.get(plan_code)
 	if not plan_name:
 		logging.error(f"Plan code '{plan_code}' does not match any known plans.")
-		return None
+		plan_name = "該当プラン無"
 
-	query = f"SELECT Id FROM GuaranteePlan__c WHERE Name ='{plan_name}'"
+	query = f"SELECT Id FROM GuaranteePlan__c WHERE Name = '{plan_name}'"
 	url = f"{instance_url}/services/data/v54.0/query?q={query}"
 	logging.info(f"Querying Salesforce for GuaranteePlan: {url}")
 
@@ -477,7 +477,7 @@ def get_matching_plan_id(plan_code, instance_url, headers):
 		
 		logging.info(f"No matching plan found. Creating a new plan for code: {plan_code}")
 		new_plan_data = {
-			"Name": "新プラン",
+			"Name": plan_name,
 			"ExternalId": "plan_code"
 			}
 			create_url = f"{instance_url}/services/data/v54.0/sobjects/GuaranteePlan__c"
