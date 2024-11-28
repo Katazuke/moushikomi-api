@@ -281,6 +281,14 @@ def map_variables(data, columns):
 				if entry_body.get("name") == entry_name:
 					value = entry_body.get(field_name, "")
 					break
+		# 改行コードのチェック
+		if value and isinstance(value, str) and ('\n' in value or '\r' in value):
+			logging.warning(f"Invalid newline characters detected in key={key}, value={value}")
+			# 改行コードを削除する場合
+			value = value.replace('\n', ' ').replace('\r', ' ')
+			# またはエラーをスローする場合
+			raise ValueError(f"Newline characters found in value for key={key}: {value}")
+
 		# フォーマット適用
 		value = apply_format(key, value)
 
@@ -310,7 +318,7 @@ def update_renter_record(instance_url, headers, record_id, renter_data):
 def check_duplicate_record(instance_url, headers, renter_data):
 	"""賃借人オブジェクト内の重複チェック"""
 	if renter_data["RenterType__c"] == "法人":
-		query = f"SELECT Id FROM Renter__c WHERE CorporateNumber__c = '{renter_data.get('CorporateNumber__c')}'"
+		query = f"SELECT Id FROM Renter__c WHERE CorporateNumber__c = {renter_data.get('CorporateNumber__c')}"
 	else:
 		query = (
 			f"SELECT Id FROM Renter__c WHERE LastName__c = '{renter_data.get('LastName__c')}' "
