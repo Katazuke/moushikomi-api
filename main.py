@@ -107,6 +107,23 @@ RENTER_COLUMNS_MAPPING = { 						# RenterType による契約者マッピング�
 			("CompanyAddress_Building__c","corp_tenant1_address","other"),
 			("AnnualIncome__c","corp_tenant1_workplace_tax_included_annual_income","number"),
 	  		],
+		"入居者2": [
+			("RenterType__c",None,None),
+			("LastName__c","corp_tenant2_name_kana","last_name"),
+			("FirstName__c","corp_tenant2_name_kana","first_name"),
+			("LastNameKana__c","corp_tenant2_name_kana","last_name_kana"),
+			("FirstNameKana__c","corp_tenant2_name_kana","first_name_kana"),
+			("Sex__c","corp_tenant2_sex","choice"),
+			("Nationality__c","corp_tenant2_nationality","text"),
+			("Birthday__c","corp_tenant2_birthday","birthday"),
+			("MobilePhoneNumber__c","corp_tenant2_mobile_tel","phone_number"),
+			("PhoneNumber__c","corp_tenant2_home_tel","phone_number"),
+			("Email__c","corp_tenant2_mail","text"),
+			("Company__c","corp_tenant2_workplace","text"),
+			("CompanyKana__c","corp_tenant2_workplace","text_kana"),
+			("CompanyPhone__c","corp_tenant2_workplace_tel","phone_number"),
+			("AnnualIncome__c","corp_tenant2_workplace_tax_included_annual_income","number"),
+	  		],
 		},
 	}
 
@@ -419,6 +436,10 @@ def main():
 	# 賃借人オブジェクトから個人/法人に分けて入居者のマッピング表を選択
 	tenant_data =  map_variables(appjson, RENTER_COLUMNS_MAPPING[renter_type]["入居者1"])
 	tenant_data["RenterType__c"] = "個人"
+	tenant2_data =  map_variables(appjson, RENTER_COLUMNS_MAPPING[renter_type]["入居者2"])
+	tenant2_data["RenterType__c"] = "個人"
+
+
 
 	# STEP 4: 契約者情報の重複チェック
 	#アクセストークンを取得してSFAPIのヘッダを構築
@@ -434,6 +455,7 @@ def main():
 	
 	# 入居者重複チェックと重複しない場合に新規作成
 	tenant_id = check_duplicate_record(instance_url, sf_headers, tenant_data) or create_renter_record(instance_url, sf_headers, tenant_data)
+	tenant2_id = check_duplicate_record(instance_url, sf_headers, tenant_data) or create_renter_record(instance_url, sf_headers, tenant_data)	
 
 	# STEP 7: 申込情報の更新	
 	# データ取得
