@@ -553,10 +553,10 @@ def main():
 	renter_data["RenterType__c"] = renter_type
 
 	# 賃借人オブジェクトから個人/法人に分けて入居者のマッピング表を選択
-	tenant_data =  map_variables(appjson, RENTER_COLUMNS_MAPPING[renter_type]["入居者1"])
-	tenant_data["RenterType__c"] = "個人"
-	tenant2_data =  map_variables(appjson, RENTER_COLUMNS_MAPPING[renter_type]["入居者2"])
-	tenant2_data["RenterType__c"] = "個人"
+	#tenant_data =  map_variables(appjson, RENTER_COLUMNS_MAPPING[renter_type]["入居者1"])
+	#tenant_data["RenterType__c"] = "個人"
+	#tenant2_data =  map_variables(appjson, RENTER_COLUMNS_MAPPING[renter_type]["入居者2"])
+	#tenant2_data["RenterType__c"] = "個人"
 
 
 	# STEP 4: 契約者情報の重複チェック
@@ -572,8 +572,8 @@ def main():
 
 	
 	# 入居者重複チェックと重複しない場合に新規作成
-	tenant_id = check_duplicate_record(instance_url, sf_headers, tenant_data) or create_renter_record(instance_url, sf_headers, tenant_data)
-	tenant2_id = check_duplicate_record(instance_url, sf_headers, tenant2_data) or create_renter_record(instance_url, sf_headers, tenant2_data)	
+	#tenant_id = check_duplicate_record(instance_url, sf_headers, tenant_data) or create_renter_record(instance_url, sf_headers, tenant_data)
+	#tenant2_id = check_duplicate_record(instance_url, sf_headers, tenant2_data) or create_renter_record(instance_url, sf_headers, tenant2_data)	
 
 	# STEP 7: 申込情報の更新	
 	# データ取得
