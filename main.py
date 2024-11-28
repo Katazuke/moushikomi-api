@@ -118,8 +118,6 @@ RENTER_COLUMNS_MAPPING = { 						# RenterType による契約者マッピング�
 			("CompanyKana__c","tenant5_workplace","text_kana"),
 			("AnnualIncome__c","tenant5_workplace_tax_included_annual_income","number"),
 			],
-
-		
 		},
 	"法人": {
 		"契約者":[
@@ -239,8 +237,6 @@ RENTER_COLUMNS_MAPPING = { 						# RenterType による契約者マッピング�
 		},
 	}
 
-
-
 APPLICATION_COLUMNS_MAPPING = [
 		("Contractor__c",None,None),
 		("Resident1__c",None,None),
@@ -281,6 +277,7 @@ APPLICATION_COLUMNS_MAPPING = [
 		("EmergencyContactAddress_Street__c","emergency_address","street"),
 		("EmergencyContactAddress_Building__c","emergency_address","other"),
 		]
+
 
 FIELD_TRANSFORMATIONS = {
 	"Sex__c": {
@@ -446,6 +443,54 @@ def update_renter_record(instance_url, headers, record_id, renter_data):
 		logging.error(f"Response content: {response.text}")
 		return False
 
+def get_matching_plan_id(plan_code, instance_url, headers):
+	"""保証プラン名で一致する保証プランIDを取得。該当がなければ新規作成"""
+	if not plan_code:  # JSONからのプラン名がNoneの場合
+		return None
+
+	# 保証プラン辞書（Salesforce側に事前登録されているプラン名とIDを取得）
+	existing_plans = {
+		"elu": "GPL-00000000",
+		"8": "GPL-00000001",
+		"8899": "GPL-00000002",
+		"1693": "GPL-00000003"
+		}
+
+	plan_name = existing_plans.get(plan_code)
+	if not plan_name:
+		logging.error(f"Plan code '{plan_code}' does not match any known plans.")
+		return None
+
+	query = f"SELECT Id FROM GuaranteePlan__c WHERE Name ='{plan_name}'"
+	url = f"{instance_url}/services/data/v54.0/query?q={query}"
+	logging.info(f"Querying Salesforce for GuaranteePlan: {url}")
+
+	try:
+		response = requests.get(url, headers=headers)
+		response.raise_for_status()
+		plans = response.json().get("records", [])
+			
+		if plans:
+			plan_id = plans[0]["Id"]
+			logging.info(f"Duplicate record found: {plan_id}")
+			return plan_id  # 一致するプランIDを返す
+		
+		logging.info(f"No matching plan found. Creating a new plan for code: {plan_code}")
+		new_plan_data = {
+			"Name": "新プラン",
+			"ExternalId": "plan_code"
+			}
+			create_url = f"{instance_url}/services/data/v54.0/sobjects/GuaranteePlan__c"
+			create_response = requests.post(create_url, headers=headers, json=new_plan_data)
+			create_response.raise_for_status()
+			new_plan_id = create_response.json().get("id")
+			return new_plan_id  # 新規作成したプランIDを返す
+	except requests.exceptions.RequestException as e:
+		logging.error(f"HTTP Request failed: {e}")
+		raise
+
+
+
 def check_duplicate_record(instance_url, headers, renter_data):
 	"""賃借人オブジェクト内の重複チェック"""
 	if renter_data["RenterType__c"] == "法人":
@@ -569,14 +614,11 @@ def main():
 	renter_data =  map_variables(appjson, RENTER_COLUMNS_MAPPING[renter_type]["契約者"])
 	renter_data["RenterType__c"] = renter_type
 
-	# 賃借人オブジェクトから個人/法人に分けて入居者のマッピング表を選択
-	#tenant_data =  map_variables(appjson, RENTER_COLUMNS_MAPPING[renter_type]["入居者1"])
-	#tenant_data["RenterType__c"] = "個人"
-	#tenant2_data =  map_variables(appjson, RENTER_COLUMNS_MAPPING[renter_type]["入居者2"])
-	#tenant2_data["RenterType__c"] = "個人"
+	# STEP 4: 保証プランの紐づけ
+	plan_id = appjson.get("guarantee", {}).get("plan_id")
+	plan_record = get_matching_plan_id(plan_id, instance_url, sf_headers)
 
-
-	# STEP 4: 契約者情報の重複チェック
+	# STEP 5: 契約者情報の重複チェック
 	#アクセストークンを取得してSFAPIのヘッダを構築
 	access_token, instance_url = get_salesforce_token()
 	sf_headers = {
@@ -587,16 +629,12 @@ def main():
 	# 契約者重複チェックと重複しない場合に新規作成
 	contractor_id = check_duplicate_record(instance_url, sf_headers, renter_data) or create_renter_record(instance_url, sf_headers, renter_data)
 
-	
-	# 入居者重複チェックと重複しない場合に新規作成
-	#tenant_id = check_duplicate_record(instance_url, sf_headers, tenant_data) or create_renter_record(instance_url, sf_headers, tenant_data)
-	#tenant2_id = check_duplicate_record(instance_url, sf_headers, tenant2_data) or create_renter_record(instance_url, sf_headers, tenant2_data)	
-
 	# STEP 7: 申込情報の更新	
 	# データ取得
 	app_data = map_variables(appjson, APPLICATION_COLUMNS_MAPPING)
 	app_data["Contractor__c"]=contractor_id
 	app_data["IndividualCorporation__c"]=renter_type
+	app_data["GuaranteePlan__c"]=plan_record
 	logging.info(f"app_data={app_data}")
 
 	for i in range(1, 6):  # 入居者 1〜5 をループ処理
