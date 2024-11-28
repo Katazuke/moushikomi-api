@@ -455,13 +455,14 @@ def main():
 	
 	# 入居者重複チェックと重複しない場合に新規作成
 	tenant_id = check_duplicate_record(instance_url, sf_headers, tenant_data) or create_renter_record(instance_url, sf_headers, tenant_data)
-	tenant2_id = check_duplicate_record(instance_url, sf_headers, tenant_data) or create_renter_record(instance_url, sf_headers, tenant_data)	
+	tenant2_id = check_duplicate_record(instance_url, sf_headers, tenant2_data) or create_renter_record(instance_url, sf_headers, tenant2_data)	
 
 	# STEP 7: 申込情報の更新	
 	# データ取得
 	app_data = map_variables(appjson, APPLICATION_COLUMNS_MAPPING)
 	app_data["Contractor__c"]=contractor_id
 	app_data["Resident1__c"]=tenant_id
+	app_data["Resident2__c"]=tenant2_id
 	app_data["IndividualCorporation__c"]=renter_type
 	logging.info(f"app_data={app_data}")
 
