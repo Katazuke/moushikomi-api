@@ -610,16 +610,21 @@ def main():
 		
 		else:
 			# 保証プラン ID を JSON データから取得
-			plan_code = appjson.get("guarantee", {}).get("plan_id")
-			if plan_code:
+			guarantee_data = appjson.get("guarantee", {})
+			if guarantee_data:
+				plan_code = guarantee_data.get("plan_id")
+				if plan_code:
 				# 保証プランが既存の場合はその ID を取得、なければ新規作成
-				plan_record_id = get_matching_plan_id(plan_code, instance_url, sf_headers)
-				if not plan_record_id:
-					logging.warning(f"Guarantee plan not found for plan_code: {plan_code}. A new plan will be created.")
-					plan_record_id = create_new_guarantee_plan(plan_code, instance_url, sf_headers)
+					plan_record_id = get_matching_plan_id(plan_code, instance_url, sf_headers)
+					if not plan_record_id:
+						logging.warning(f"Guarantee plan not found for plan_code: {plan_code}. A new plan will be created.")
+						plan_record_id = create_new_guarantee_plan(plan_code, instance_url, sf_headers)
+				else:
+					# 保証プランが指定されていない場合は None
+					logging.info("No guarantee plan found in appjson. Setting GuaranteePlan__c to None.")
+					plan_record_id = None
 			else:
-				# 保証プランが指定されていない場合は None
-				logging.info("No guarantee plan found in appjson. Setting GuaranteePlan__c to None.")
+				logging.info("No guarantee data found in appjson. Setting GuaranteePlan__c to None.")
 				plan_record_id = None
 	
 		#app_data に保証プラン ID を設定
