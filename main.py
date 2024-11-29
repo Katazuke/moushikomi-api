@@ -444,24 +444,11 @@ def update_renter_record(instance_url, headers, record_id, renter_data):
 		return False
 
 def get_matching_plan_id(plan_code, instance_url, headers):
-	"""保証プラン名で一致する保証プランIDを取得。該当がなければ新規作成"""
-	if not plan_code:  # JSONからのプラン名がNoneの場合
+	"""保証プラン名で一致する保証プランIDを取得"""
+	if not plan_code:
 		return None
 
-	# 保証プラン辞書（Salesforce側に事前登録されているプラン名とIDを取得）
-	existing_plans = {
-		"elu": "GPL-00000000",
-		"12621": "GPL-00000001",
-		"19932": "GPL-00000002",
-		"1693": "GPL-00000003"
-		}
-
-	plan_name = existing_plans.get(plan_code)
-	if not plan_name:
-		logging.error(f"Plan code '{plan_code}' does not match any known plans.")
-		plan_name = "該当プラン無"
-
-	query = f"SELECT Id FROM GuaranteePlan__c WHERE Name = '{plan_name}'"
+	query = f"SELECT Id FROM GuaranteePlan__c WHERE ExternalId__c = '{plan_code}'"
 	url = f"{instance_url}/services/data/v54.0/query?q={query}"
 	logging.info(f"Querying Salesforce for GuaranteePlan: {url}")
 
@@ -469,26 +456,28 @@ def get_matching_plan_id(plan_code, instance_url, headers):
 		response = requests.get(url, headers=headers)
 		response.raise_for_status()
 		plans = response.json().get("records", [])
-			
-		if plans:
-			plan_id = plans[0]["Id"]
-			logging.info(f"Duplicate record found: {plan_id}")
-			return plan_id  # 一致するプランIDを返す
-		
-		logging.info(f"No matching plan found. Creating a new plan for code: {plan_code}")
-		new_plan_data = {
-			"ExternalId__c": "plan_code"
-			}
-		create_url = f"{instance_url}/services/data/v54.0/sobjects/GuaranteePlan__c"
-		create_response = requests.post(create_url, headers=headers, json=new_plan_data)
-		create_response.raise_for_status()
-		new_plan_id = create_response.json().get("id")
-		return new_plan_id  # 新規作成したプランIDを返す
+		return plans[0]["Id"] if plans else None
 	except requests.exceptions.RequestException as e:
-		logging.error(f"HTTP Request failed: {e}")
-		raise
+		logging.error(f"Error querying Salesforce for GuaranteePlan: {e}")
+		return None
 
+def create_new_guarantee_plan(plan_code, instance_url, headers):
+	"""新しい保証プランを作成"""
+	url = f"{instance_url}/services/data/v54.0/sobjects/GuaranteePlan__c"
+	new_plan_data = {
+		"ExternalId__c": plan_code,
+		"Name": f"Plan for {plan_code}"
+	}
 
+	try:
+		response = requests.post(url, headers=headers, json=new_plan_data)
+		response.raise_for_status()
+		created_plan = response.json()
+		logging.info(f"Created new GuaranteePlan: {created_plan}")
+		return created_plan.get("id")
+	except requests.exceptions.RequestException as e:
+		logging.error(f"Error creating new GuaranteePlan: {e}")
+		return None
 
 def check_duplicate_record(instance_url, headers, renter_data):
 	"""賃借人オブジェクト内の重複チェック"""
@@ -614,16 +603,31 @@ def main():
 	renter_data["RenterType__c"] = renter_type
 
 	# STEP 4: 保証プランの紐づけ
-	if appjson is None:
-		logging.error("appjson is None. Cannot process further.")
-		plan_id = None
+	try:
+		if appjson is None or not isinstance(appjson, dict):
+			logging.error("appjson is None or invalid. Cannot process further.")
+			plan_record_id = None  # 保証プラン ID を None に設定
 		
-	else:
-		logging.info(f"Processing appjson: {appjson}")
-		plan_id = appjson.get("guarantee", {}).get("plan_id")
+		else:
+			# 保証プラン ID を JSON データから取得
+			plan_code = appjson.get("guarantee", {}).get("plan_id")
+			if plan_code:
+				# 保証プランが既存の場合はその ID を取得、なければ新規作成
+				plan_record_id = get_matching_plan_id(plan_code, instance_url, sf_headers)
+				if not plan_record_id:
+					logging.warning(f"Guarantee plan not found for plan_code: {plan_code}. A new plan will be created.")
+					plan_record_id = create_new_guarantee_plan(plan_code, instance_url, sf_headers)
+			else:
+				# 保証プランが指定されていない場合は None
+				logging.info("No guarantee plan found in appjson. Setting GuaranteePlan__c to None.")
+				plan_record_id = None
 	
-	plan_record = get_matching_plan_id(plan_id, instance_url, sf_headers)
-			
+		#app_data に保証プラン ID を設定
+		app_data["GuaranteePlan__c"] = plan_record_id
+		logging.info(f"GuaranteePlan__c set to: {plan_record_id}")
+	except Exception as e:
+		logging.error(f"Error processing guarantee plan: {e}")
+		raise	
 
 	# STEP 5: 契約者情報の重複チェック
 	#アクセストークンを取得してSFAPIのヘッダを構築
