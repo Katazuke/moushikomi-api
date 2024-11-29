@@ -595,14 +595,22 @@ def main():
 		logging.error("Failed to parse JSON from external API response")
 		return jsonify({"error": "Invalid JSON response from external API"}), 500
 		
+	# STEP 3: 契約者情報の重複チェック
+	#アクセストークンを取得してSFAPIのヘッダを構築
+	access_token, instance_url = get_salesforce_token()
+	sf_headers = {
+		'Authorization': f'Bearer {access_token}',
+		'Content-Type': 'application/json',
+	}
 	
-	# STEP 3: 個人/法人のマッピング表を選択
+	# STEP 4: 個人/法人のマッピング表を選択
 	# 賃借人オブジェクトから個人/法人に分けて契約者のマッピング表を選択
 	renter_type = "法人" if appjson.get("corp") else "個人"
 	renter_data =  map_variables(appjson, RENTER_COLUMNS_MAPPING[renter_type]["契約者"])
 	renter_data["RenterType__c"] = renter_type
 
-	# STEP 4: 保証プランの紐づけ
+
+	# STEP 5: 保証プランの紐づけ
 	try:
 		# appjson が None または無効な場合にエラーをログに記録し、保証プランを None に設定
 		if appjson is None or not isinstance(appjson, dict):
@@ -634,25 +642,19 @@ def main():
 		logging.error(f"Error processing guarantee plan: {e}")
 		raise	
 
-	# STEP 5: 契約者情報の重複チェック
-	#アクセストークンを取得してSFAPIのヘッダを構築
-	access_token, instance_url = get_salesforce_token()
-	sf_headers = {
-		'Authorization': f'Bearer {access_token}',
-		'Content-Type': 'application/json',
-	}
-	print(sf_headers)
-	# 契約者重複チェックと重複しない場合に新規作成
-	contractor_id = check_duplicate_record(instance_url, sf_headers, renter_data) or create_renter_record(instance_url, sf_headers, renter_data)
 
-	# STEP 7: 申込情報の更新	
-	# データ取得
+	# STEP 6: 申込情報の更新	
+	# 申込情報の構築
 	app_data = map_variables(appjson, APPLICATION_COLUMNS_MAPPING)
 	app_data["Contractor__c"]=contractor_id
 	app_data["IndividualCorporation__c"]=renter_type
 	app_data["GuaranteePlan__c"]=plan_record_id
 	logging.info(f"app_data={app_data}")
 
+	# 契約者重複チェックと重複しない場合に新規作成
+	contractor_id = check_duplicate_record(instance_url, sf_headers, renter_data) or create_renter_record(instance_url, sf_headers, renter_data)
+
+	# 入居者重複チェックと重複しない場合に新規作成
 	for i in range(1, 6):  # 入居者 1〜5 をループ処理
 		tenant_key = f"入居者{i}"
 		resident_key = f"Resident{i}__c"
