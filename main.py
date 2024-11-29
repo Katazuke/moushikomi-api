@@ -614,8 +614,14 @@ def main():
 	renter_data["RenterType__c"] = renter_type
 
 	# STEP 4: 保証プランの紐づけ
-	plan_id = appjson.get("guarantee", {}).get("plan_id")
-	plan_record = get_matching_plan_id(plan_id, instance_url, sf_headers)
+	if appjson is None:
+		logging.error("appjson is None. Cannot process further.")
+		plan_id = None
+	else:
+		logging.info(f"Processing appjson: {appjson}")
+		plan_id = appjson.get("guarantee", {}).get("plan_id")
+		plan_record = get_matching_plan_id(plan_id, instance_url, sf_headers)
+		
 
 	# STEP 5: 契約者情報の重複チェック
 	#アクセストークンを取得してSFAPIのヘッダを構築
