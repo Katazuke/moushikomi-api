@@ -604,6 +604,7 @@ def main():
 
 	# STEP 4: 保証プランの紐づけ
 	try:
+		# appjson が None または無効な場合にエラーをログに記録し、保証プランを None に設定
 		if appjson is None or not isinstance(appjson, dict):
 			logging.error("appjson is None or invalid. Cannot process further.")
 			plan_record_id = None  # 保証プラン ID を None に設定
