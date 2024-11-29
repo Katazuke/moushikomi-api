@@ -629,7 +629,6 @@ def main():
 				plan_record_id = None
 	
 		#app_data に保証プラン ID を設定
-		app_data["GuaranteePlan__c"] = plan_record_id
 		logging.info(f"GuaranteePlan__c set to: {plan_record_id}")
 	except Exception as e:
 		logging.error(f"Error processing guarantee plan: {e}")
