@@ -479,11 +479,11 @@ def get_matching_plan_id(plan_code, instance_url, headers):
 		new_plan_data = {
 			"ExternalId__c": "plan_code"
 			}
-			create_url = f"{instance_url}/services/data/v54.0/sobjects/GuaranteePlan__c"
-			create_response = requests.post(create_url, headers=headers, json=new_plan_data)
-			create_response.raise_for_status()
-			new_plan_id = create_response.json().get("id")
-			return new_plan_id  # 新規作成したプランIDを返す
+		create_url = f"{instance_url}/services/data/v54.0/sobjects/GuaranteePlan__c"
+		create_response = requests.post(create_url, headers=headers, json=new_plan_data)
+		create_response.raise_for_status()
+		new_plan_id = create_response.json().get("id")
+		return new_plan_id  # 新規作成したプランIDを返す
 	except requests.exceptions.RequestException as e:
 		logging.error(f"HTTP Request failed: {e}")
 		raise
