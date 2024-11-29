@@ -650,7 +650,7 @@ def main():
 	app_data = map_variables(appjson, APPLICATION_COLUMNS_MAPPING)
 	app_data["Contractor__c"]=contractor_id
 	app_data["IndividualCorporation__c"]=renter_type
-	app_data["GuaranteePlan__c"]=plan_record
+	app_data["GuaranteePlan__c"]=plan_record_id
 	logging.info(f"app_data={app_data}")
 
 	for i in range(1, 6):  # 入居者 1〜5 をループ処理
