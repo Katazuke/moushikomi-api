@@ -278,7 +278,11 @@ APPLICATION_COLUMNS_MAPPING = [
 		("EmergencyContactAddress_Building__c","emergency_address","other"),
 		]
 
-
+GUARANTEE_PLAN = [
+		("ExternalId__c","guarantee_plan_id",None)
+		("ExternalCompanyName__c","guarantee","Name"),
+		("PlanName__c","guarantee","plan_name"),
+		]
 
 FIELD_TRANSFORMATIONS = {
 	"Sex__c": {
@@ -444,6 +448,80 @@ def update_renter_record(instance_url, headers, record_id, renter_data):
 		logging.error(f"Response content: {response.text}")
 		return False
 
+def create_new_account(instance_url, headers, guarantee_name):
+	"""新しい取引先(Account__c)を作成"""
+	url = f"{instance_url}/services/data/v54.0/sobjects/Account"
+	account_data = {
+		"Name": guarantee_name,
+		"RentInsuranceCompany__c": True
+		}
+	try:
+		response = requests.post(url, headers=headers, json=account_data)
+		response.raise_for_status()
+		created_account = response.json()
+		logging.info(f"Created new Account: {created_account}")
+		return created_account.get("id")
+	except requests.exceptions.RequestException as e:
+		logging.error(f"Error creating new Account: {e}")
+		return None
+
+def find_matching_company(instance_url, headers, guarantee_name):
+	"""保証会社名に一致する取引先を検索"""
+	query = f"SELECT Id FROM Account WHERE Name = '{guarantee_name}' AND RentInsuranceCompany__c = True"
+	url = f"{instance_url}/services/data/v54.0/query?q={query}"
+	try:
+		response = requests.get(url, headers=headers)
+		response.raise_for_status()
+		accounts = response.json().get("records", [])
+		return accounts[0]["Id"] if accounts else None
+	except requests.exceptions.RequestException as e:
+		logging.error(f"Error querying Account: {e}")
+		return None
+
+def process_guarantee_plan(appjson, instance_url, headers):
+	"""保証プランを処理"""
+	guarantee_data = appjson.get("guarantee", {})		#guaranteeエリアのデータを取得
+	guarantee_name = guarantee_data.get("Name")		#保証会社名を取得
+	guarantee_plan_id = guarantee_data.get("plan_id")		#保証プランidを取得
+	
+	if not guarantee_plan_id or not guarantee_name:
+		logging.info("保証プランなし")
+		return None
+	
+	# 保証プランが存在するかチェック
+	plan_record_id = get_matching_plan_id(guarantee_plan_id, instance_url, headers)
+	if plan_record_id:
+		return plan_record_id
+
+	# 保証プランがない場合は会社名を比較
+	company_id = find_matching_company(instance_url, headers, guarantee_name)
+	if not company_id:
+		# 一致する会社がなければ新しい取引先を作成
+		company_id = create_new_account(instance_url, headers, guarantee_name)
+	
+	if not company_id:
+		logging.error("新しい取引先の作成に失敗しました。")
+		return None
+
+	# 新しい保証プランを作成
+	url = f"{instance_url}/services/data/v54.0/sobjects/GuaranteePlan__c"
+	new_plan_data = {
+		"ExternalId__c": guarantee_plan_id,
+		"PlanName__c": guarantee_data.get("plan_name"),
+		"ExternalCompanyName__c": guarantee_name,
+		"Company__c": company_id
+	}
+	try:
+		response = requests.post(url, headers=headers, json=new_plan_data)
+		response.raise_for_status()
+		created_plan = response.json()
+		logging.info(f"Created new GuaranteePlan: {created_plan}")
+		return created_plan.get("id")
+	except requests.exceptions.RequestException as e:
+		logging.error(f"Error creating new GuaranteePlan: {e}")
+		return None
+
+
 def get_matching_plan_id(plan_code, instance_url, headers):
 	"""保証プラン名で一致する保証プランIDを取得"""
 	if not plan_code:
@@ -465,10 +543,7 @@ def get_matching_plan_id(plan_code, instance_url, headers):
 def create_new_guarantee_plan(plan_code, instance_url, headers):
 	"""新しい保証プランを作成"""
 	url = f"{instance_url}/services/data/v54.0/sobjects/GuaranteePlan__c"
-	new_plan_data = {
-		"ExternalId__c": plan_code,
-	#	"Name": f"Plan for {plan_code}"
-	}
+	new_plan_data = 
 
 	try:
 		response = requests.post(url, headers=headers, json=new_plan_data)
@@ -613,30 +688,31 @@ def main():
 
 	# STEP 5: 保証プランの紐づけ
 	try:
+		plan_record_id = process_guarantee_plan(appjson, instance_url, sf_headers)
 		# appjson が None または無効な場合にエラーをログに記録し、保証プランを None に設定
-		if appjson is None or not isinstance(appjson, dict):
-			logging.error("appjson is None or invalid. Cannot process further.")
-			plan_record_id = None  # 保証プラン ID を None に設定
-		
-		else:
-			# 保証プラン ID を JSON データから取得
-			guarantee_data = appjson.get("guarantee", {})
-			if guarantee_data:
-				plan_code = guarantee_data.get("plan_id")
-				if plan_code:
-				# 保証プランが既存の場合はその ID を取得、なければ新規作成
-					plan_record_id = get_matching_plan_id(plan_code, instance_url, sf_headers)
-					if not plan_record_id:
-						logging.warning(f"Guarantee plan not found for plan_code: {plan_code}. A new plan will be created.")
-						plan_record_id = create_new_guarantee_plan(plan_code, instance_url, sf_headers)
-				else:
-					# 保証プランが指定されていない場合は None
-					logging.info("No guarantee plan found in appjson. Setting GuaranteePlan__c to None.")
-					plan_record_id = None
-			else:
-				logging.info("No guarantee data found in appjson. Setting GuaranteePlan__c to None.")
-				plan_record_id = None
-	
+		#if appjson is None or not isinstance(appjson, dict):
+		#	logging.error("appjson is None or invalid. Cannot process further.")
+		#	plan_record_id = None  # 保証プラン ID を None に設定
+		#
+		#else:
+		#	# 保証プラン ID を JSON データから取得
+		#	guarantee_data = appjson.get("guarantee", {})
+		#	if guarantee_data:
+		#		plan_code = guarantee_data.get("plan_id")
+		#		if plan_code:
+		#		# 保証プランが既存の場合はその ID を取得、なければ新規作成
+		#			plan_record_id = get_matching_plan_id(plan_code, instance_url, sf_headers)
+		#			if not plan_record_id:
+		#				logging.warning(f"Guarantee plan not found for plan_code: {plan_code}. A new plan will be created.")
+		#				plan_record_id = create_new_guarantee_plan(plan_code, instance_url, sf_headers)
+		#		else:
+		#			# 保証プランが指定されていない場合は None
+		#			logging.info("No guarantee plan found in appjson. Setting GuaranteePlan__c to None.")
+		#			plan_record_id = None
+		#	else:
+		#		logging.info("No guarantee data found in appjson. Setting GuaranteePlan__c to None.")
+		#		plan_record_id = None
+		#
 		#app_data に保証プラン ID を設定
 		logging.info(f"GuaranteePlan__c set to: {plan_record_id}")
 	except Exception as e:
@@ -649,7 +725,7 @@ def main():
 	app_data = map_variables(appjson, APPLICATION_COLUMNS_MAPPING)
 	app_data["IndividualCorporation__c"]=renter_type
 	app_data["GuaranteePlan__c"]=plan_record_id
-	logging.info(f"app_data={app_data}")
+	#logging.info(f"app_data={app_data}")
 
 	# 契約者重複チェックと重複しない場合に新規作成
 	contractor_id = check_duplicate_record(instance_url, sf_headers, renter_data) or create_renter_record(instance_url, sf_headers, renter_data)
