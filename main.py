@@ -543,7 +543,12 @@ def get_matching_plan_id(plan_code, instance_url, headers):
 def create_new_guarantee_plan(plan_code, instance_url, headers):
 	"""新しい保証プランを作成"""
 	url = f"{instance_url}/services/data/v54.0/sobjects/GuaranteePlan__c"
-	new_plan_data = 
+	new_plan_data = {
+		"ExternalId__c": plan_code,
+		"PlanName__c": guarantee_data.get("plan_name"),
+		"ExternalCompanyName__c": guarantee_name,
+		"Company__c": company_id
+	}
 
 	try:
 		response = requests.post(url, headers=headers, json=new_plan_data)
