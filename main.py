@@ -279,6 +279,7 @@ APPLICATION_COLUMNS_MAPPING = [
 		]
 
 
+
 FIELD_TRANSFORMATIONS = {
 	"Sex__c": {
 		"男": "男性",
@@ -387,7 +388,7 @@ def transform_value(key, value):
 		return None
 	if key in FIELD_TRANSFORMATIONS:
 		# 該当する変換マッピングがあれば適用
-		logging.info(f"Before formatting: key={key}, value={value}")
+		#logging.info(f"Before formatting: key={key}, value={value}")
 		return FIELD_TRANSFORMATIONS[key].get(value, value)
 	return value  # 該当しない場合はそのまま返す
 
@@ -466,7 +467,7 @@ def create_new_guarantee_plan(plan_code, instance_url, headers):
 	url = f"{instance_url}/services/data/v54.0/sobjects/GuaranteePlan__c"
 	new_plan_data = {
 		"ExternalId__c": plan_code,
-		"Name": f"Plan for {plan_code}"
+	#	"Name": f"Plan for {plan_code}"
 	}
 
 	try:
