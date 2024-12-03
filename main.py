@@ -540,25 +540,6 @@ def get_matching_plan_id(plan_code, instance_url, headers):
 		logging.error(f"Error querying Salesforce for GuaranteePlan: {e}")
 		return None
 
-def create_new_guarantee_plan(plan_code, instance_url, headers):
-	"""新しい保証プランを作成"""
-	url = f"{instance_url}/services/data/v54.0/sobjects/GuaranteePlan__c"
-	new_plan_data = {
-		"ExternalId__c": plan_code,
-		"PlanName__c": guarantee_data.get("plan_name"),
-		"ExternalCompanyName__c": guarantee_name,
-		"Company__c": company_id
-	}
-
-	try:
-		response = requests.post(url, headers=headers, json=new_plan_data)
-		response.raise_for_status()
-		created_plan = response.json()
-		logging.info(f"Created new GuaranteePlan: {created_plan}")
-		return created_plan.get("id")
-	except requests.exceptions.RequestException as e:
-		logging.error(f"Error creating new GuaranteePlan: {e}")
-		return None
 
 def check_duplicate_record(instance_url, headers, renter_data):
 	"""賃借人オブジェクト内の重複チェック"""
