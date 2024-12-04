@@ -2,6 +2,7 @@ import requests
 from flask import Flask,request,jsonify,json,make_response
 import logging
 from datetime import datetime
+import re
 
 app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -254,7 +255,6 @@ APPLICATION_COLUMNS_MAPPING = [
 		("BrokerCompany__c","broker_company_name",None),
 		("ApplicationDate__c","created_at",None),
 		("ExternalUpdatedDate__c","updated_at",None),
-		("SuretyNumber__c","result_surety_number",None),
 		("ApplyCount__c","priotity",None),
 		("Pet__c","is_pet","choice"),
 		("PetCount__c","number_of_pets","number"),
@@ -282,11 +282,13 @@ APPLICATION_COLUMNS_MAPPING = [
 		("EmergencyContactAddress_Building__c","emergency_address","other"),
 		]
 
-GUARANTEE_PLAN = [
-		("ExternalId__c","guarantee_plan_id",None),
-		("ExternalCompanyName__c","guarantee","Name"),
-		("PlanName__c","guarantee","plan_name"),
-		]
+#ENTRY_HEAD = [
+#		("ExternalId__c","guarantee_plan_id",None),
+#		("ExternalCompanyName__c","guarantee","Name"),
+#		("PlanName__c","guarantee","plan_name"),
+#		("SuretyNumber__c","judgement_result"",result_surety_number),
+#		()
+#		]
 
 FIELD_TRANSFORMATIONS = {
 	"Sex__c": {
@@ -619,6 +621,24 @@ def create_renter_record(instance_url, headers, renter_data):
 		logging.error(f"Response content: {response.text}")
 		raise  # エラーを呼び出し元に伝える
 
+def split_company_and_branch(lines):
+	"""会社名と支店名を分割"""
+	results = []
+	# 正規表現: 株式会社を含む部分を会社名、それ以降を支店名として分割
+	pattern = r"^(.*?株式会社(?: [^本店]*)?)\s*(本店|.*店)?$"
+	
+	for line in lines:
+		match = re.match(pattern, line)
+		if match:
+			company_name = match.group(1).strip()
+			branch_name = match.group(2).strip() if match.group(2) else ""
+			results.append((company_name, branch_name))
+		else:
+			# マッチしない場合はそのまま返す
+			results.append((line, ""))
+	return results
+
+
 @app.route('/')
 def main():
 	# STEP 1: クエリパラメータからapplication_idとrecord_idを取得
@@ -674,12 +694,22 @@ def main():
 		logging.error(f"Error processing guarantee plan: {e}")
 		raise	
 
+	# STEP6: 仲介会社情報の処理
+	try:
+		broker_record_id = process_broker_info(appjson, instance_url, sf_headers)
+		logging.info(f"AccountObjCategory__c set to: {broker_record_id}")
+	except Exception as e:
+		logging.error(f"Error processing broker info: {e}")
+		raise
 
-	# STEP 6: 申込情報の更新	
+
+
+	# STEP 7: 申込情報の更新	
 	# 申込情報の構築
 	app_data = map_variables(appjson, APPLICATION_COLUMNS_MAPPING)
 	app_data["IndividualCorporation__c"]=renter_type
 	app_data["GuaranteePlan__c"]=plan_record_id
+	app_data["AccountObjCategory__c"] = broker_record_id
 	#logging.info(f"app_data={app_data}")
 
 	# 契約者重複チェックと重複しない場合に新規作成
@@ -691,6 +721,7 @@ def main():
 		tenant_key = f"入居者{i}"
 		resident_key = f"Resident{i}__c"
 		process_tenant_data(appjson, renter_type, tenant_key, instance_url, sf_headers, app_data, resident_key)	
+
 
 	# 申込オブジェクトの更新
 	app_url = f"{instance_url}/services/data/v54.0/sobjects/Application__c/{record_id}"
