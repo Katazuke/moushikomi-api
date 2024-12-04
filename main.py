@@ -713,7 +713,7 @@ def process_broker_info(broker_data, instance_url, headers):
 
 def find_existing_housing_agency(corporate_number, instance_url, headers):
 	"""法人番号で既存の社宅代行会社取引先を検索"""
-	query = f"SELECT Id FROM Account WHERE CorporateNumber__c = '{corporate_number}'"
+	query = f"SELECT Id FROM Account WHERE ExternalId__c = '{corporate_number}'"
 	url = f"{instance_url}/services/data/v54.0/query?q={query}"
 	try:
 		response = requests.get(url, headers=headers)
@@ -747,7 +747,7 @@ def process_housing_agency(appjson, instance_url, headers):
 	agency_name = appjson.get("corp_company_housing_agency")
 	corporate_number = appjson.get("corp_company_housing_nationaltaxagency_corporate_number")
 
-	if not agency_name or not corporate_number:
+	if not agency_name:
 		logging.warning("Missing housing agency data. Skipping processing.")
 		return None
 
