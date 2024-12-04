@@ -13,6 +13,10 @@ SF_USERNAME = 'dev@a-max.jp.0705test'
 SF_PASSWORD = 'Fj3zyT4f'
 SF_TOKEN_URL = 'https://a-max--0705test.sandbox.my.salesforce.com/services/oauth2/token'
 
+# ITANDI 接続情報
+ITANDI_TOKEN = 'Token 5a5030e472a8f92a87e4e093f4161944'
+
+
 RENTER_COLUMNS_MAPPING = { 						# RenterType による契約者マッピング条件の辞書
 	"個人": {
 		"契約者":[
@@ -482,10 +486,8 @@ def process_guarantee_plan(appjson, instance_url, headers):
 	"""保証プランを処理"""
 	guarantee_data = appjson.get("guarantee", {})		#guaranteeエリアのデータを取得
 	guarantee_name = guarantee_data.get("name")		#保証会社名を取得
-	guarantee_plan_id = guarantee_data.get("plan_id")		#保証プランidを取得
+	guarantee_plan_id = guarantee_data.get("plan_id")	#保証プランidを取得
 	
-	logging.info(f"guarantee_data='{guarantee_data}',guarantee_name = '{guarantee_name}',guarantee_plan_id = '{guarantee_plan_id}'")
-
 	if not guarantee_plan_id or not guarantee_name:
 		logging.info("保証プランなし")
 		return None
@@ -632,8 +634,7 @@ def main():
 	url = f'https://moushikomi-uketsukekun.com/maintenance_company/api/v2/entry_heads/{application_id}'
 	
 	#ヘッダ情報を定義（Authorizationヘッダを含む）
-	iapikey = 'Token 5a5030e472a8f92a87e4e093f4161944'
-	headers = {'Authorization': iapikey}
+	headers = {'Authorization': ITANDI_TOKEN}
 
 	# GETリクエストを送信（ヘッダを含む）
 	try:
