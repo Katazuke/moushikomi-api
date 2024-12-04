@@ -288,6 +288,7 @@ APPLICATION_COLUMNS_MAPPING = [
 		("HousingAgencyContactFirstNameKana__c","corp_company_housing_contact_name","first_name_kana"),
 		("HousingAgencyTell__c","corp_company_housing_tel","phone_number"),
 		("HousingAgencyFax__c","corp_company_housing_fax","phone_number"),
+		("")
 		("ResponsiblePerson__c",None,None),
 		("ResponsiblePersonPhoneNumber__c",None,None),
 		("EResponsiblePersonEmail__c",None,None),
@@ -744,8 +745,15 @@ def process_housing_agency(appjson, instance_url, headers):
 		return None
 
 	# 社宅代行情報を取得
-	agency_name = appjson.get("corp_company_housing_agency")
-	corporate_number = appjson.get("corp_company_housing_nationaltaxagency_corporate_number")
+	agency_name = None
+	corporate_number = None
+	
+	
+	for entry_body in appjson.get("entry_bodies", []):
+		if entry_body.get("name") == "corp_company_housing_agency":
+			agency_name = entry_body.get("text")
+		elif entry_body.get("name") == "corp_company_housing_nationaltaxagency_corporate_number":
+			corporate_number = entry_body.get("text")
 
 	if not agency_name:
 		logging.warning("Missing housing agency data. Skipping processing.")
