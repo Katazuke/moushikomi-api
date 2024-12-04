@@ -651,7 +651,7 @@ def process_broker_info(appjson, instance_url, headers):
 	zipcode = broker_data.get("zipcode")
 	address = broker_data.get("address")
 
-	if not auth_id or not broker_name:
+	if not auth_id :
 		logging.warning("必要な仲介会社情報が不足しています。")
 		return None
 
