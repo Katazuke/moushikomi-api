@@ -288,7 +288,6 @@ APPLICATION_COLUMNS_MAPPING = [
 		("HousingAgencyContactFirstNameKana__c","corp_company_housing_contact_name","first_name_kana"),
 		("HousingAgencyTell__c","corp_company_housing_tel","phone_number"),
 		("HousingAgencyFax__c","corp_company_housing_fax","phone_number"),
-		("")
 		("ResponsiblePerson__c",None,None),
 		("ResponsiblePersonPhoneNumber__c",None,None),
 		("EResponsiblePersonEmail__c",None,None),
