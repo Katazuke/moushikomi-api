@@ -280,6 +280,12 @@ APPLICATION_COLUMNS_MAPPING = [
 		("EmergencyContactAddress_City__c","emergency_address","city"),
 		("EmergencyContactAddress_Street__c","emergency_address","street"),
 		("EmergencyContactAddress_Building__c","emergency_address","other"),
+		("HousingAgencyContactLastName__c","corp_company_housing_contact_name","last_name"),
+		("HousingAgencyContactFirstName__c","corp_company_housing_contact_name","first_name"),
+		("HousingAgencyContactLastNameKana__c","corp_company_housing_contact_name","last_name_kana"),
+		("HousingAgencyContactFirstNameKana__c","corp_company_housing_contact_name","first_name_kana"),
+		("HousingAgencyTell__c","corp_company_housing_tel","phone_number"),
+		("HousingAgencyFax__c","corp_company_housing_fax","phone_number"),
 		]
 
 #ENTRY_HEAD = [
@@ -398,7 +404,6 @@ def transform_value(key, value):
 		return None
 	if key in FIELD_TRANSFORMATIONS:
 		# 該当する変換マッピングがあれば適用
-		#logging.info(f"Before formatting: key={key}, value={value}")
 		return FIELD_TRANSFORMATIONS[key].get(value, value)
 	return value  # 該当しない場合はそのまま返す
 
@@ -564,7 +569,6 @@ def check_duplicate_record(instance_url, headers, renter_data):
 			f"AND Birthday__c = {renter_data.get('Birthday__c')}"
 		)
 	url = f"{instance_url}/services/data/v54.0/query?q={query}"
-	logging.info(f"URL: {url} & renter_data:{renter_data}")
 
 	try:
 		response = requests.get(url, headers=headers)
@@ -641,7 +645,6 @@ def split_company_and_branch(lines):
 	pattern = r"^(.*?株式会社(?: [^本店]*)?)\s*(本店|.*店)?$"
 	
 	for line in lines:
-		logging.info(f"line: {line}")
 		if not isinstance(line, str):  # 入力が文字列でない場合の処理
 			logging.warning(f"Invalid line input for splitting: {line}")
 			results.append((line, ""))  # デフォルト値で追加
@@ -834,7 +837,6 @@ def main():
 	app_data["IndividualCorporation__c"]=renter_type
 	app_data["GuaranteePlan__c"]=plan_record_id
 	app_data["AccountObjCategory__c"] = broker_record_id
-	#logging.info(f"app_data={app_data}")
 
 	# 契約者重複チェックと重複しない場合に新規作成
 	contractor_id = check_duplicate_record(instance_url, sf_headers, renter_data) or create_renter_record(instance_url, sf_headers, renter_data)
