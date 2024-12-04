@@ -770,6 +770,7 @@ def process_housing_agency(appjson, instance_url, headers):
 		"CorporateNumber__c": corporate_number,
 		"HousingAgency__c": True
 	}
+	logging.info(f"agency_data = {agency_data }")
 	return create_housing_agency(agency_data, instance_url, headers)
 
 @app.route('/')
