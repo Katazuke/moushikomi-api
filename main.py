@@ -664,7 +664,7 @@ def process_broker_info(appjson, instance_url, headers):
 		return None
 
 	auth_id = broker_data.get("auth_id")
-	broker_name = broker_data.get("broker_company_name")
+	broker_name = broker_data.get("company_name")
 	phone_number = broker_data.get("fixed_phone_number")
 	zipcode = broker_data.get("zipcode")
 	address = broker_data.get("address")
