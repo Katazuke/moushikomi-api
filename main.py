@@ -628,6 +628,10 @@ def split_company_and_branch(lines):
 	pattern = r"^(.*?株式会社(?: [^本店]*)?)\s*(本店|.*店)?$"
 	
 	for line in lines:
+		if not isinstance(line, str):  # 入力が文字列でない場合の処理
+			logging.warning(f"Invalid line input for splitting: {line}")
+			results.append((line, ""))  # デフォルト値で追加
+			continue
 		match = re.match(pattern, line)
 		if match:
 			company_name = match.group(1).strip()
