@@ -638,6 +638,51 @@ def split_company_and_branch(lines):
 			results.append((line, ""))
 	return results
 
+def process_broker_info(appjson, instance_url, headers):
+	"""仲介会社情報を処理"""
+	broker_data = appjson.get("broker", {})
+	if not broker_data:
+		logging.warning("brokerデータが存在しません。")
+		return None
+
+	auth_id = broker_data.get("auth_id")
+	broker_name = broker_data.get("broker_company_name")
+	phone_number = broker_data.get("fixed_phone_number")
+	zipcode = broker_data.get("zipcode")
+	address = broker_data.get("address")
+
+	if not auth_id or not broker_name:
+		logging.warning("必要な仲介会社情報が不足しています。")
+		return None
+
+	# broker_company_nameを分割して会社名と支店名を取得
+	company_branch = split_company_and_branch([broker_name])
+	company_name, branch_name = company_branch[0] if company_branch else (broker_name, "")
+
+	# Salesforce上で既存のStoreBranch__cレコードを検索
+	existing_record_id = find_existing_store_branch(auth_id, instance_url, headers)
+	if existing_record_id:
+		logging.info(f"既存のStoreBranch__cレコードが見つかりました: {existing_record_id}")
+		return existing_record_id
+
+	# 新しいStoreBranch__cレコードを作成
+	store_branch_data = {
+		"ExternalId__c": auth_id,
+		"LicenseName__c": company_name,
+		"StoreBranchName__c": branch_name,
+		"LicenseOfficeTel__c": phone_number,
+		"LicenseOfficeLocation__c": f"{zipcode} {address}"
+	}
+	try:
+		url = f"{instance_url}/services/data/v54.0/sobjects/StoreBranch__c"
+		response = requests.post(url, headers=headers, json=store_branch_data)
+		response.raise_for_status()
+		created_record = response.json()
+		logging.info(f"Created new StoreBranch__c record: {created_record}")
+		return created_record.get("id")
+	except requests.exceptions.RequestException as e:
+		logging.error(f"Error creating new StoreBranch__c record: {e}")
+		return None
 
 @app.route('/')
 def main():
