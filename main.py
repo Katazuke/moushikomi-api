@@ -621,6 +621,19 @@ def create_renter_record(instance_url, headers, renter_data):
 		logging.error(f"Response content: {response.text}")
 		raise  # エラーを呼び出し元に伝える
 
+def find_existing_store_branch(auth_id, instance_url, headers):
+	"""auth_idで既存のStoreBranch__cレコードを検索"""
+	query = f"SELECT Id FROM StoreBranch__c WHERE ExternalId__c = '{auth_id}'"
+	url = f"{instance_url}/services/data/v54.0/query?q={query}"
+	try:
+		response = requests.get(url, headers=headers)
+		response.raise_for_status()
+		records = response.json().get("records", [])
+		return records[0]["Id"] if records else None
+	except requests.exceptions.RequestException as e:
+		logging.error(f"Error querying StoreBranch__c: {e}")
+		return None
+
 def split_company_and_branch(lines):
 	"""会社名と支店名を分割"""
 	results = []
