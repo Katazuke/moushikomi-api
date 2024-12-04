@@ -265,7 +265,9 @@ APPLICATION_COLUMNS_MAPPING = [
 		("InstrumentUse__c","is_instrument","choice"),
 		("InstrumentType__c","instrument_type","text"),
 		("MovingReason__c","applicant_moving_reason","choice"),
+		("MovingReason__c","corp_applicant_moving_reason","choice")
 		("Nationality__c","telnet_detail","choice"),
+		("Nationality__c","corp_telnet_detail","choice"),
 		("ResidentRelationship1__c","tenant1_relationship","choice"),
 		("ResidentRelationship2__c","tenant2_relationship","choice"),
 		("ResidentRelationship3__c","tenant3_relationship","choice"),
