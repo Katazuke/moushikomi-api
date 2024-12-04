@@ -841,10 +841,10 @@ def main():
 	app_data["IndividualCorporation__c"]=renter_type
 	app_data["GuaranteePlan__c"]=plan_record_id
 	app_data["AccountObjCategory__c"] = broker_record_id
-	app_data["BrokerCompany__c"] = broker.get('broker_company_name')
-	app_data["ResponsiblePersonPhoneNumber__c"] = broker.get('phone_number')
-	app_data["ResponsiblePerson__c"] = broker.get('name')
-	app_data["EResponsiblePersonEmail__c"] = broker.get('email')
+	app_data["BrokerCompany__c"] = broker_data.get('broker_company_name')
+	app_data["ResponsiblePersonPhoneNumber__c"] = broker_data.get('phone_number')
+	app_data["ResponsiblePerson__c"] = broker_data.get('name')
+	app_data["EResponsiblePersonEmail__c"] = broker_data.get('email')
 
 	# 契約者重複チェックと重複しない場合に新規作成
 	contractor_id = check_duplicate_record(instance_url, sf_headers, renter_data) or create_renter_record(instance_url, sf_headers, renter_data)
