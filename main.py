@@ -703,6 +703,60 @@ def process_broker_info(appjson, instance_url, headers):
 		logging.error(f"Error creating new StoreBranch__c record: {e}")
 		return None
 
+def find_existing_housing_agency(corporate_number, instance_url, headers):
+	"""法人番号で既存の社宅代行会社取引先を検索"""
+	query = f"SELECT Id FROM Account WHERE CorporateNumber__c = '{corporate_number}'"
+	url = f"{instance_url}/services/data/v54.0/query?q={query}"
+	try:
+		response = requests.get(url, headers=headers)
+		response.raise_for_status()
+		accounts = response.json().get("records", [])
+		return accounts[0]["Id"] if accounts else None
+	except requests.exceptions.RequestException as e:
+		logging.error(f"Error querying housing agency: {e}")
+		return None
+
+def create_housing_agency(agency_data, instance_url, headers):
+	"""新しい社宅代行会社取引先を作成"""
+	url = f"{instance_url}/services/data/v54.0/sobjects/Account"
+	try:
+		response = requests.post(url, headers=headers, json=agency_data)
+		response.raise_for_status()
+		created_account = response.json()
+		logging.info(f"Created new housing agency: {created_account}")
+		return created_account.get("id")
+	except requests.exceptions.RequestException as e:
+		logging.error(f"Error creating new housing agency: {e}")
+		return None
+
+def process_housing_agency(appjson, instance_url, headers):
+	"""社宅代行会社情報を処理"""
+	if not appjson.get("corp"):
+		logging.info("RenterType is not '法人', skipping housing agency processing.")
+		return None
+
+	# 社宅代行情報を取得
+	agency_name = appjson.get("corp_company_housing_agency")
+	corporate_number = appjson.get("corp_company_housing_nationaltaxagency_corporate_number")
+
+	if not agency_name or not corporate_number:
+		logging.warning("Missing housing agency data. Skipping processing.")
+		return None
+
+	# 既存の社宅代行会社を検索
+	existing_agency_id = find_existing_housing_agency(corporate_number, instance_url, headers)
+	if existing_agency_id:
+		logging.info(f"Found existing housing agency: {existing_agency_id}")
+		return existing_agency_id
+
+	# 新しい社宅代行会社を作成
+	agency_data = {
+		"Name": agency_name,
+		"CorporateNumber__c": corporate_number,
+		"HousingAgency__c": True
+	}
+	return create_housing_agency(agency_data, instance_url, headers)
+
 @app.route('/')
 def main():
 	# STEP 1: クエリパラメータからapplication_idとrecord_idを取得
@@ -766,9 +820,15 @@ def main():
 		logging.error(f"Error processing broker info: {e}")
 		raise
 
+	# STEP 7: 社宅代行会社情報の処理
+	try:
+		agent_id = process_housing_agency(appjson, instance_url, sf_headers)
+		logging.info(f"Agent__c set to: {agent_id}")
+	except Exception as e:
+		logging.error(f"Error processing housing agency: {e}")
+		agent_id = None
 
-
-	# STEP 7: 申込情報の更新	
+	# STEP 8: 申込情報の更新	
 	# 申込情報の構築
 	app_data = map_variables(appjson, APPLICATION_COLUMNS_MAPPING)
 	app_data["IndividualCorporation__c"]=renter_type
