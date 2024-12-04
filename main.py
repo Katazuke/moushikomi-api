@@ -841,7 +841,7 @@ def main():
 	app_data["IndividualCorporation__c"]=renter_type
 	app_data["GuaranteePlan__c"]=plan_record_id
 	app_data["AccountObjCategory__c"] = broker_record_id
-	app_data["BrokerCompany__c"] = broker_data.get('broker_company_name')
+	app_data["BrokerCompany__c"] = broker_data.get('company_name')
 	app_data["ResponsiblePersonPhoneNumber__c"] = broker_data.get('phone_number')
 	app_data["ResponsiblePerson__c"] = broker_data.get('name')
 	app_data["EResponsiblePersonEmail__c"] = broker_data.get('email')
