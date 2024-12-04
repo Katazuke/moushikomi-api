@@ -481,7 +481,7 @@ def find_matching_company(instance_url, headers, guarantee_name):
 def process_guarantee_plan(appjson, instance_url, headers):
 	"""保証プランを処理"""
 	guarantee_data = appjson.get("guarantee", {})		#guaranteeエリアのデータを取得
-	guarantee_name = guarantee_data.get("Name")		#保証会社名を取得
+	guarantee_name = guarantee_data.get("name")		#保証会社名を取得
 	guarantee_plan_id = guarantee_data.get("plan_id")		#保証プランidを取得
 	
 	logging.info(f"guarantee_data='{guarantee_data}',guarantee_name = '{guarantee_name}',guarantee_plan_id = '{guarantee_plan_id}'")
