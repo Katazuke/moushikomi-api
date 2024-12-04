@@ -286,6 +286,10 @@ APPLICATION_COLUMNS_MAPPING = [
 		("HousingAgencyContactFirstNameKana__c","corp_company_housing_contact_name","first_name_kana"),
 		("HousingAgencyTell__c","corp_company_housing_tel","phone_number"),
 		("HousingAgencyFax__c","corp_company_housing_fax","phone_number"),
+		("ResponsiblePerson__c",None,None),
+		("ResponsiblePersonPhoneNumber__c",None,None),
+		("EResponsiblePersonEmail__c",None,None),
+		("BrokerCompany__c",None,None),
 		]
 
 #ENTRY_HEAD = [
@@ -659,9 +663,8 @@ def split_company_and_branch(lines):
 			results.append((line, ""))
 	return results
 
-def process_broker_info(appjson, instance_url, headers):
+def process_broker_info(broker_data, instance_url, headers):
 	"""仲介会社情報を処理"""
-	broker_data = appjson.get("broker", {})
 	if not broker_data:
 		logging.warning("brokerデータが存在しません。")
 		return None
@@ -672,7 +675,7 @@ def process_broker_info(appjson, instance_url, headers):
 	zipcode = broker_data.get("zipcode")
 	address = broker_data.get("address")
 
-	logging.info(f"broker_data={broker_data}")
+	#logging.info(f"broker_data={broker_data}")
 	if not auth_id :
 		logging.warning("必要な仲介会社情報が不足しています。")
 		return None
@@ -816,8 +819,9 @@ def main():
 		raise	
 
 	# STEP6: 仲介会社情報の処理
+	broker_data = appjson.get("broker", {})
 	try:
-		broker_record_id = process_broker_info(appjson, instance_url, sf_headers)
+		broker_record_id = process_broker_info(broker_data, instance_url, sf_headers)
 		logging.info(f"AccountObjCategory__c set to: {broker_record_id}")
 	except Exception as e:
 		logging.error(f"Error processing broker info: {e}")
@@ -837,6 +841,10 @@ def main():
 	app_data["IndividualCorporation__c"]=renter_type
 	app_data["GuaranteePlan__c"]=plan_record_id
 	app_data["AccountObjCategory__c"] = broker_record_id
+	app_data["BrokerCompany__c"] = broker.get('broker_company_name')
+	app_data["ResponsiblePersonPhoneNumber__c"] = broker.get('phone_number')
+	app_data["ResponsiblePerson__c"] = broker.get('name')
+	app_data["EResponsiblePersonEmail__c"] = broker.get('email')
 
 	# 契約者重複チェックと重複しない場合に新規作成
 	contractor_id = check_duplicate_record(instance_url, sf_headers, renter_data) or create_renter_record(instance_url, sf_headers, renter_data)
