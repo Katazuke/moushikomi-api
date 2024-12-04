@@ -484,6 +484,8 @@ def process_guarantee_plan(appjson, instance_url, headers):
 	guarantee_name = guarantee_data.get("Name")		#保証会社名を取得
 	guarantee_plan_id = guarantee_data.get("plan_id")		#保証プランidを取得
 	
+	logging.info(f"guarantee_data='{guarantee_data}',guarantee_name = '{guarantee_name}',guarantee_plan_id = '{guarantee_plan_id}'")
+
 	if not guarantee_plan_id or not guarantee_name:
 		logging.info("保証プランなし")
 		return None
@@ -599,18 +601,6 @@ def process_tenant_data(appjson, renter_type, tenant_key, instance_url, sf_heade
 	app_data[resident_key] = tenant_id
 	logging.info(f"{resident_key} processed with ID: {tenant_id}")
 
-
-
-def format_birthday(birthday):
-	"""Birthday__c を YYYY-MM-DD の形式に変換"""
-	try: # ISO 8601形式をパースして YYYY-MM-DD形式にフォーマット
-		date_obj = datetime.fromisoformat(birthday.split(".")[0])  # ミリ秒とタイムゾーンを無視
-		return date_obj.strftime("%Y-%m-%d")
-	except ValueError:
-		logging.error(f"Invalid birthday format: {birthday}")
-		return None
-
-
 def create_renter_record(instance_url, headers, renter_data):
 	"""新しい Renter__c レコードを作成し、その ID を返す"""
 	url = f"{instance_url}/services/data/v54.0/sobjects/Renter__c"
@@ -675,30 +665,6 @@ def main():
 	# STEP 5: 保証プランの紐づけ
 	try:
 		plan_record_id = process_guarantee_plan(appjson, instance_url, sf_headers)
-		# appjson が None または無効な場合にエラーをログに記録し、保証プランを None に設定
-		#if appjson is None or not isinstance(appjson, dict):
-		#	logging.error("appjson is None or invalid. Cannot process further.")
-		#	plan_record_id = None  # 保証プラン ID を None に設定
-		#
-		#else:
-		#	# 保証プラン ID を JSON データから取得
-		#	guarantee_data = appjson.get("guarantee", {})
-		#	if guarantee_data:
-		#		plan_code = guarantee_data.get("plan_id")
-		#		if plan_code:
-		#		# 保証プランが既存の場合はその ID を取得、なければ新規作成
-		#			plan_record_id = get_matching_plan_id(plan_code, instance_url, sf_headers)
-		#			if not plan_record_id:
-		#				logging.warning(f"Guarantee plan not found for plan_code: {plan_code}. A new plan will be created.")
-		#				plan_record_id = create_new_guarantee_plan(plan_code, instance_url, sf_headers)
-		#		else:
-		#			# 保証プランが指定されていない場合は None
-		#			logging.info("No guarantee plan found in appjson. Setting GuaranteePlan__c to None.")
-		#			plan_record_id = None
-		#	else:
-		#		logging.info("No guarantee data found in appjson. Setting GuaranteePlan__c to None.")
-		#		plan_record_id = None
-		#
 		#app_data に保証プラン ID を設定
 		logging.info(f"GuaranteePlan__c set to: {plan_record_id}")
 	except Exception as e:
