@@ -767,7 +767,7 @@ def process_housing_agency(appjson, instance_url, headers):
 	# 新しい社宅代行会社を作成
 	agency_data = {
 		"Name": agency_name,
-		"CorporateNumber__c": corporate_number,
+		"ExternalId__c": corporate_number,
 	}
 	logging.info(f"agency_data = {agency_data }")
 	return create_housing_agency(agency_data, instance_url, headers)
