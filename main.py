@@ -854,6 +854,7 @@ def main():
 	app_data["ResponsiblePersonPhoneNumber__c"] = broker_data.get('phone_number')
 	app_data["ResponsiblePerson__c"] = broker_data.get('name')
 	app_data["EResponsiblePersonEmail__c"] = broker_data.get('email')
+	app_data["Agent__c"] = agent_id
 
 	# 契約者重複チェックと重複しない場合に新規作成
 	contractor_id = check_duplicate_record(instance_url, sf_headers, renter_data) or create_renter_record(instance_url, sf_headers, renter_data)
