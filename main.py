@@ -485,19 +485,21 @@ def find_matching_company(instance_url, headers, guarantee_name):
 def process_guarantee_plan(appjson, instance_url, headers):
 	"""保証プランを処理"""
 	guarantee_data = appjson.get("guarantee", {})		#guaranteeエリアのデータを取得
+	# guaranteeエリアが空の場合、保証プランなしで終了
+	if not guarantee_data:
+		logging.warning("保証プランなし")
+		return None	
+	
+	#guaranteeエリアが空じゃない場合、保証プラン情報を取得
 	guarantee_name = guarantee_data.get("name")		#保証会社名を取得
 	guarantee_plan_id = guarantee_data.get("plan_id")	#保証プランidを取得
-	
-	if not guarantee_plan_id or not guarantee_name:
-		logging.info("保証プランなし")
-		return None
-	
-	# 保証プランが存在するかチェック
+		
+	# 保証プランがSF上に存在するかチェック
 	plan_record_id = get_matching_plan_id(guarantee_plan_id, instance_url, headers)
 	if plan_record_id:
 		return plan_record_id
 
-	# 保証プランがない場合は会社名を比較
+	# 保証プランがSF上にない場合は会社名を比較
 	company_id = find_matching_company(instance_url, headers, guarantee_name)
 	if not company_id:
 		# 一致する会社がなければ新しい取引先を作成
