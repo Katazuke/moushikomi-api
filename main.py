@@ -279,7 +279,7 @@ APPLICATION_COLUMNS_MAPPING = [
 		]
 
 GUARANTEE_PLAN = [
-		("ExternalId__c","guarantee_plan_id",None)
+		("ExternalId__c","guarantee_plan_id",None),
 		("ExternalCompanyName__c","guarantee","Name"),
 		("PlanName__c","guarantee","plan_name"),
 		]
