@@ -921,7 +921,7 @@ def main():
 		logging.error(f"Salesforce Application update error: {error_message}")
 		return jsonify({"error": error_message}), app_response.status_code
 
-	return redirect(url_for('main'))  # 自身のページにリダイレクト
+	return '''<script>window.close();</script>''', 200
 	
 
 	# IPアドレステスト用URL
