@@ -920,7 +920,7 @@ def main():
 		logging.error(f"Salesforce Application update error: {error_message}")
 		return jsonify({"error": error_message}), app_response.status_code
 
-	return jsonify({"success": "Data processed successfully"}), 200
+	return '', 204  # 空のレスポンスとステータスコード204を返す
 	
 
 	# IPアドレステスト用URL
