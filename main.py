@@ -1,8 +1,9 @@
 import requests
-from flask import Flask,request,jsonify,json,make_response
+from flask import Flask,request,jsonify,json,make_response,redirect, url_for
 import logging
 from datetime import datetime
 import re
+
 
 app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -920,7 +921,7 @@ def main():
 		logging.error(f"Salesforce Application update error: {error_message}")
 		return jsonify({"error": error_message}), app_response.status_code
 
-	return '', 204  # 空のレスポンスとステータスコード204を返す
+	return redirect(url_for('main'))  # 自身のページにリダイレクト
 	
 
 	# IPアドレステスト用URL
