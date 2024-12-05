@@ -37,7 +37,7 @@ RENTER_COLUMNS_MAPPING = { 						# RenterType による契約者マッピング�
 			("Prefecture__c","applicant_address","state"),
 			("Address1__c","applicant_address","city"),
 			("Address2__c","applicant_address","street"),
-			("Address2__c","applicant_address","other"),
+			("AddressBuilding__c","applicant_address","other"),
 			("Company__c","applicant_workplace","text"),
 			("CompanyKana__c","applicant_workplace","text_kana"),
 			("CompanyPhone__c","applicant_workplace_tel","phone_number"),
