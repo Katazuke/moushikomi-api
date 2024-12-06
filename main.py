@@ -12,8 +12,7 @@ logging.basicConfig(level=logging.INFO)
 #SF_CLIENT_ID = '3MVG96vIeT8jJWjKIhbYEse7lgOxIGPVFHjLMpe1oRUNOYQ2BO8iykQ08UKN9HZ2Z_ikNFsRV.zo.Mze_H948'
 #SF_CLIENT_SECRET = 'F142768140C5559BD971EA504CB64524AF6AE9B2EFCEFEF710228A724FCAE88A'
 #SF_USERNAME = 'dev@a-max.jp.0705test'
-#SF_PASSWORD = 'Fj3zyT4f
-'
+#SF_PASSWORD = 'Fj3zyT4f'
 #SF_TOKEN_URL = 'https://a-max--0705test.sandbox.my.salesforce.com/services/oauth2/token'
 
 # Salesforce 本番接続情報
