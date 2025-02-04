@@ -906,7 +906,7 @@ def update_application_record(instance_url, headers, app_data):
 		response = requests.patch(url_to_updata, headers=headers, json=app_data_to_updata)
 		response.raise_for_status()
 		logging.info(f"Updated Application__c record: {app_data['Id']}")
-		return {app_data['Id']}
+		return app_data['Id']
 	except requests.exceptions.RequestException as e:
 		logging.error(f"Error updating Application__c record: {e}")
 		return False
@@ -1026,7 +1026,7 @@ def main():
 
 	new_or_updated_record_id = create_or_update_application(instance_url, sf_headers, app_data)
 	if new_or_updated_record_id:
-		return jsonify({"message": f"Processed Application__c record: {new_or_updated_record_id}"}), 200		
+		return '''<script>window.close();</script>''', 200	
 	else:
 		return jsonify({"error": "Failed to process Application__c record"}), 500	
 
