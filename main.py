@@ -479,7 +479,19 @@ def map_variables(data, columns):
 		# entry_bodies 内の特定フィールドを取得
 			for entry_body in data.get("entry_bodies", []):
 				if entry_body.get("name") == entry_name:
-					value = entry_body.get(field_name, "")
+					if entry_name == "applicant_address":
+						is_overseas = entry_body.get('overseas', False)
+						if is_overseas :
+							# overseas が True の場合、海外住所のみ使用
+							if key == 'Address2__c':  # 海外住所を Address2__c にセット
+								value = entry_body.get('overseas_address', '')
+							else:
+								value = None  # 他の住所関連キーは無視
+						else:
+							# 通常の住所マッピング
+							value = entry_body.get(field_name, '')
+					else:
+						value = entry_body.get(field_name, "")
 					break
 		# 改行コードのチェック
 		if value and isinstance(value, str) and ('\n' in value or '\r' in value):
@@ -513,6 +525,7 @@ def update_renter_record(instance_url, headers, record_id, renter_data):
 	except requests.exceptions.HTTPError as e:
 		logging.error(f"HTTP Error: {e}")
 		logging.error(f"レスポンス内容: {response.text}")
+		logging.error(f"Renter_data: {renter_data}")  # renter_dataをJSON形式で出力
 		return False
 
 def create_new_account(instance_url, headers, guarantee_name):
@@ -680,6 +693,7 @@ def create_renter_record(instance_url, headers, renter_data):
 	except requests.exceptions.HTTPError as e:
 		logging.error(f"HTTP Error: {e}")
 		logging.error(f"Response content: {response.text}")
+		logging.error(f"Renter_data: {renter_data}")  # renter_dataをJSON形式で出力
 		raise  # エラーを呼び出し元に伝える
 
 def find_existing_store_branch(auth_id, instance_url, headers):
