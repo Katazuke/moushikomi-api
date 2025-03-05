@@ -479,7 +479,7 @@ def map_variables(data, columns):
 		# entry_bodies 内の特定フィールドを取得
 			for entry_body in data.get("entry_bodies", []):
 				if entry_body.get("name") == entry_name:
-					if entry_name == "applicant_address":
+					if "_address" in entry_name::
 						is_overseas = entry_body.get('overseas', False)
 						if is_overseas :
 							# overseas が True の場合、海外住所のみ使用
