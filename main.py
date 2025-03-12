@@ -436,8 +436,6 @@ def apply_format(key, value):
 		"CompanyAddress_PostalCode__c": "postal_code",
 		"Birthday__c": "date",
 		"PostCode__c": "postal_code",
-		"ApplicationDate__c": "date",
-		"ExternalUpdatedDate__c": "date",
 		"Email__c": "email",  # メールアドレスフォーマット
 		"CompanyContactMail__c": "email",  # メールアドレスフォーマット
 	}
