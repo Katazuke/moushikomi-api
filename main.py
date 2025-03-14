@@ -266,7 +266,6 @@ APPLICATION_COLUMNS_MAPPING = [
 		("ExternalStatusID__c","entry_status_id",None),
 		("ApplicationDate__c","created_at",None),
 		("ExternalUpdatedDate__c","updated_at",None),
-		("ApplyCount__c","priotity",None),
 		("Pet__c","is_pet","choice"),
 		("PetCount__c","number_of_pets","number"),
 		("PetType__c","pet_classification","choice"),
