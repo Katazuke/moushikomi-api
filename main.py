@@ -138,7 +138,7 @@ RENTER_COLUMNS_MAPPING = { 						# RenterType による契約者マッピング�
 		"契約者":[
 			("LastName__c","corp_applicant_workplace","text"),
 			("LastNameKana__c","corp_applicant_workplace","text_kana"),
-			("CorporateNumber__c","corp_info_corporate_number","text"),
+			("CorporateNumberText__c","corp_info_corporate_number","text"),
 			("PostCode__c","corp_info_head_office_address","zip_code"),
 			("Prefecture__c","corp_info_head_office_address","state"),
 			("Address1__c","corp_info_head_office_address","city"),
@@ -625,7 +625,7 @@ def check_duplicate_record(instance_url, headers, renter_data):
 	"""賃借人オブジェクト内の重複チェック"""
 	if renter_data["RenterType__c"] == "法人":
 		query = (
-			f"SELECT Id FROM Renter__c WHERE CorporateNumber__c = {renter_data.get('CorporateNumber__c')}.0 "
+			f"SELECT Id FROM Renter__c WHERE CorporateNumberText__c = {renter_data.get('CorporateNumberText__c')}.0 "
 			f"AND RenterType__c = '{renter_data.get('RenterType__c')}'"
 		)
 	else:
