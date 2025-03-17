@@ -625,7 +625,7 @@ def check_duplicate_record(instance_url, headers, renter_data):
 	"""賃借人オブジェクト内の重複チェック"""
 	if renter_data["RenterType__c"] == "法人":
 		query = (
-			f"SELECT Id FROM Renter__c WHERE CorporateNumberText__c = {renter_data.get('CorporateNumberText__c')}.0 "
+			f"SELECT Id FROM Renter__c WHERE CorporateNumberText__c = '{renter_data.get('CorporateNumberText__c')}' "
 			f"AND RenterType__c = '{renter_data.get('RenterType__c')}'"
 		)
 	else:
